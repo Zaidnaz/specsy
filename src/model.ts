@@ -94,6 +94,14 @@ export interface SpecDocument {
  */
 export interface SpecChange {
   id: string;
+  /**
+   * What this collection actually is, as opposed to what it is called.
+   * `id` is a display label -- the living spec's used to be the literal string
+   * "(living spec)", which meant renaming the label silently changed which
+   * collections a filter matched, and made that label selectable as a change
+   * id. Filter on this instead.
+   */
+  kind: "change" | "living";
   /** Directory the change lives in. */
   root: string;
   documents: SpecDocument[];

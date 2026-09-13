@@ -59,6 +59,7 @@ export const openspecAdapter: Adapter = {
       if (files.length === 0) continue;
       changes.push({
         id: path.basename(dir),
+        kind: "change",
         root: dir,
         documents: await Promise.all(files.sort().map(loadDocument)),
       });
@@ -69,6 +70,7 @@ export const openspecAdapter: Adapter = {
     if (specFiles.length > 0) {
       changes.push({
         id: "(living spec)",
+        kind: "living",
         root: path.join(base, "specs"),
         documents: await Promise.all(specFiles.sort().map(loadDocument)),
       });

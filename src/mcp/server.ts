@@ -44,7 +44,7 @@ async function loadProject(root: string, format?: string) {
 }
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "specsy", version: "0.2.1" });
+  const server = new McpServer({ name: "specsy", version: "0.2.2" });
 
   server.registerTool(
     "lint_specs",
@@ -66,11 +66,13 @@ export function createServer(): McpServer {
       const root = target ?? process.cwd();
       const { project } = await loadProject(root, format);
 
+      // Only real changes are selectable: the living spec is a pseudo-change
+      // whose id is a display label, and matching on it was an accident.
       const selected = change
-        ? { ...project, changes: project.changes.filter((c) => c.id === change) }
+        ? { ...project, changes: project.changes.filter((c) => c.kind === "change" && c.id === change) }
         : project;
       if (change && selected.changes.length === 0) {
-        const known = project.changes.map((c) => c.id).join(", ");
+        const known = project.changes.filter((c) => c.kind === "change").map((c) => c.id).join(", ");
         const body = `No change named "${change}". Available: ${known || "(none)"}.`;
         usage.record("lint_specs", body);
         return text(body);

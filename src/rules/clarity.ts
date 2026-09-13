@@ -67,7 +67,10 @@ export const noWeaselWords: Rule = {
 export const quantifyPerformance: Rule = {
   id: "quantify-performance",
   description: "Performance claims must carry a number and a unit.",
-  defaultSeverity: "error",
+  // Warn, not error. The rule matches bare adjectives, so "a fast path
+  // through the cache" trips it -- real enough to raise, not certain enough
+  // to fail a build. Anyone wanting it strict has --max-warnings 0.
+  defaultSeverity: "warn",
   appliesTo: ["spec", "proposal"],
   check(doc, ctx) {
     for (const unit of clarityUnits(doc)) {

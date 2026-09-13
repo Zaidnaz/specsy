@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { openspecAdapter } from "../src/adapters/openspec.js";
 import { adapters, detectAdapter, getAdapter } from "../src/adapters/index.js";
 import { lint } from "../src/engine/lint.js";
+import { validateConfig } from "../src/engine/config.js";
 import { allRules } from "../src/rules/index.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -276,5 +277,69 @@ describe("reporting accuracy", () => {
   it("does not flag \"many\" in \"how many\"", async () => {
     const hits = (await at("no-weasel-words")).filter((d) => d.message.includes('"many"'));
     expect(hits).toEqual([]);
+  });
+});
+
+describe("config validation", () => {
+  const check = (config: object) => validateConfig(config as never, allRules);
+
+  // Regression: a misspelled rule id was accepted in silence -- the rule the
+  // user asked to disable fired anyway, with nothing to say why. The same
+  // silent-wrong-answer failure specsy exists to catch in specs.
+  it("rejects a misspelled rule id and names the likely one", () => {
+    const errors = check({ rules: { "no-weasle-words": "off" } });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("no-weasel-words");
+  });
+
+  it("rejects a severity that is not error, warn or off", () => {
+    expect(check({ rules: { "no-weasel-words": "loud" } })[0]).toContain("loud");
+  });
+
+  it("rejects an unknown top-level setting", () => {
+    expect(check({ rulez: {} })[0]).toContain("Unknown setting");
+  });
+
+  it("rejects a scalar where a list belongs", () => {
+    expect(check({ ignore: "**/x/**" })[0]).toContain("must be an array");
+  });
+
+  it("accepts a correct config", () => {
+    expect(check({ format: "auto", rules: { "no-weasel-words": "off" }, ignore: ["a/**"] })).toEqual([]);
+  });
+
+  it("accepts an empty config", () => {
+    expect(check({})).toEqual([]);
+  });
+});
+
+describe("the ignore setting", () => {
+  // Regression: `ignore` was declared, defaulted and merged, then read by
+  // nothing. It looked like a working feature to anyone inspecting the type.
+  it("removes matching documents from the run", async () => {
+    const project = await openspecAdapter.load(fixture("messy"));
+    const before = lint(project).documentCount;
+    const after = lint(project, { ignore: ["**/tasks.md"] });
+    expect(after.documentCount).toBe(before - 1);
+    expect(after.diagnostics.some((d) => d.span.file.endsWith("tasks.md"))).toBe(false);
+  });
+
+  it("leaves everything in place when unset", async () => {
+    const project = await openspecAdapter.load(fixture("messy"));
+    expect(lint(project, {}).documentCount).toBe(3);
+  });
+});
+
+describe("change identity", () => {
+  // Regression: the living spec was identified by its display label,
+  // "(living spec)", so the label doubled as a filter key and was selectable
+  // as a change id.
+  it("marks the living spec as a kind, not a magic label", async () => {
+    const project = await openspecAdapter.load(fixture("clean"));
+    for (const c of project.changes) {
+      expect(["change", "living"]).toContain(c.kind);
+      if (c.id === "(living spec)") expect(c.kind).toBe("living");
+      else expect(c.kind).toBe("change");
+    }
   });
 });

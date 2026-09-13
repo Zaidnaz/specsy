@@ -2,6 +2,7 @@ import type { SpecProject } from "../model.js";
 import type { Config, Diagnostic, Rule, RuleContext, Severity } from "./types.js";
 import { defaultConfig } from "./types.js";
 import { allRules } from "../rules/index.js";
+import picomatch from "picomatch";
 
 export interface LintResult {
   diagnostics: Diagnostic[];
@@ -32,8 +33,17 @@ export function lint(project: SpecProject, userConfig: Config = {}, rules: Rule[
   let documentCount = 0;
   const active = rules.filter((r) => severityFor(r, config) !== "off");
 
+  // `ignore` filters files within the changes that were loaded. It was
+  // declared, defaulted and merged but never read, so it silently did
+  // nothing to anyone who set it.
+  const ignored = (config.ignore ?? []).length
+    ? picomatch(config.ignore!, { dot: true })
+    : undefined;
+  const normalise = (p: string) => p.replace(/\\/g, "/");
+
   for (const change of project.changes) {
     for (const doc of change.documents) {
+      if (ignored?.(normalise(doc.path))) continue;
       documentCount++;
       for (const rule of active) {
         if (rule.appliesTo && !rule.appliesTo.includes(doc.kind)) continue;

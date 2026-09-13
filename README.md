@@ -105,7 +105,13 @@ Commands:      rules  explain  footprint  mcp
 Run 'specsy --help' to see what each one is for.
 ```
 
-Exit codes: `0` clean, `1` findings, `2` the linter itself could not run.
+Exit codes:
+
+| Code | Meaning |
+|---|---|
+| `0` | No errors. Warnings alone do **not** fail — add `--max-warnings 0` if they should |
+| `1` | One or more errors, or warnings above `--max-warnings` |
+| `2` | specsy could not run: bad config, unknown format or reporter, nothing found |
 
 ## Supported formats
 
@@ -123,7 +129,7 @@ Spec Kit and Kiro adapters are the next ones planned. An adapter only has to des
 | Rule | Default | Applies to | What it catches |
 |---|---|---|---|
 | `no-weasel-words` | warn | `spec`, `proposal` | Subjective words that cannot be turned into a test. |
-| `quantify-performance` | error | `spec`, `proposal` | Performance claims with no number and unit. |
+| `quantify-performance` | warn | `spec`, `proposal` | Performance claims with no number and unit. |
 | `use-normative-keywords` | warn | `spec` | Soft modals ("will", "needs to") instead of MUST / SHOULD / MAY. |
 | `one-requirement-per-statement` | warn | `spec` | Sentences bundling several obligations into one. Line wrapping does not affect it. |
 | `no-ambiguous-pronoun` | warn | `spec` | Requirements opening with a pronoun that has no antecedent. |
@@ -208,11 +214,19 @@ Drop a `.specsyrc.json` anywhere at or above the directory you lint:
     "require-requirement-ids": "error",
     "no-implementation-in-requirements": "off"
   },
-  "weaselWords": ["performant-ish", "TBC"]
+  "weaselWords": ["performant-ish", "TBC"],
+  "ignore": ["**/vendor/**"]
 }
 ```
 
-Every rule takes `"error"`, `"warn"` or `"off"`. `weaselWords` is merged with the built-in list, not replaced.
+Every rule takes `"error"`, `"warn"` or `"off"`. `weaselWords` is merged with the built-in list, not replaced. `ignore` takes globs and drops matching files from the run.
+
+The config is validated before anything acts on it — a misspelled rule id or an unknown setting exits `2` rather than being ignored:
+
+```
+Invalid config in .specsyrc.json:
+  Unknown rule "no-weasle-words". Did you mean "no-weasel-words"?
+```
 
 ## In CI
 

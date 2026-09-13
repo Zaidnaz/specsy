@@ -4,7 +4,7 @@ import process from "node:process";
 import { Command } from "commander";
 import pc from "picocolors";
 import { detectAdapter, getAdapter, adapters } from "./adapters/index.js";
-import { loadConfig } from "./engine/config.js";
+import { loadConfig, validateConfig } from "./engine/config.js";
 import { lint, resolveConfig } from "./engine/lint.js";
 import { allRules } from "./rules/index.js";
 import { formatPretty } from "./report/pretty.js";
@@ -36,7 +36,7 @@ const COMMANDS: { name: string; blurb: string; when: string }[] = [
 program
   .name("specsy")
   .description("A linter for specifications. Catches vague, untestable and untraceable requirements before an agent turns them into code.")
-  .version("0.2.1")
+  .version("0.2.2")
   .showSuggestionAfterError()
   .addHelpText(
     "after",
@@ -54,7 +54,7 @@ program
       "  specsy --reporter github --max-warnings 0  fail CI on any finding",
       "  claude mcp add specsy -- npx -y specsy mcp let an agent lint its own specs",
       "",
-      "Exit codes:  0 clean   1 findings   2 specsy could not run",
+      "Exit codes:  0 = no errors   1 = errors, or warnings over --max-warnings   2 = specsy could not run",
       "Docs: https://github.com/Zaidnaz/specsy",
     ].join("\n"),
   );
@@ -89,7 +89,26 @@ program
       return;
     }
 
+    // An unknown reporter used to fall through to pretty output and exit 0.
+    // A CI job asking for `--reporter github` would quietly lose its
+    // annotations with nothing to indicate anything was wrong.
+    const REPORTERS = ["pretty", "json", "github"];
+    if (!REPORTERS.includes(opts.reporter)) {
+      console.error(pc.red(`Unknown reporter "${opts.reporter}". Known reporters: ${REPORTERS.join(", ")}.`));
+      process.exitCode = 2;
+      return;
+    }
+
     const { config: fileConfig, path: configPath } = await loadConfig(cwd);
+    const configErrors = validateConfig(fileConfig, allRules);
+    if (configErrors.length > 0) {
+      console.error(pc.red(`Invalid config in ${configPath ?? "(config)"}:`));
+      for (const e of configErrors) console.error(`  ${e}`);
+      console.error("");
+      console.error(pc.dim("A config file is a statement of intent, so specsy refuses rather than ignoring it."));
+      process.exitCode = 2;
+      return;
+    }
     const config = resolveConfig(fileConfig);
     if (opts.quiet) {
       config.rules = { ...config.rules };

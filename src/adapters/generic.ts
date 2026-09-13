@@ -43,6 +43,7 @@ export const genericAdapter: Adapter = {
       changes: [
         {
           id: path.basename(root),
+          kind: "change",
           root,
           documents: await Promise.all(files.sort().map(loadDocument)),
         },
