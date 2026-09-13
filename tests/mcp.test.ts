@@ -7,6 +7,8 @@ import { createServer } from "../src/mcp/server.js";
 import { estimateTokens, formatTokens, inputCost, SessionUsage } from "../src/tokens.js";
 import { measure, loopTokens } from "../src/footprint.js";
 import { openspecAdapter } from "../src/adapters/openspec.js";
+import { allRules } from "../src/rules/index.js";
+import { explainRule, nearestRules, distance } from "../src/explain.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string) => path.join(here, "fixtures", name);
@@ -146,5 +148,35 @@ describe("spec footprint", () => {
     for (let i = 1; i < docs.length; i++) {
       expect(docs[i - 1]!.tokens).toBeGreaterThanOrEqual(docs[i]!.tokens);
     }
+  });
+});
+
+describe("command discovery", () => {
+  it("explains every rule it ships", () => {
+    // A rule with no worked example is a rule a beginner cannot learn from.
+    for (const rule of allRules) {
+      const body = explainRule(rule.id);
+      expect(body, rule.id).toBeTruthy();
+      expect(body, rule.id).toContain("Fails:");
+      expect(body, rule.id).toContain("Passes:");
+    }
+  });
+
+  it("returns nothing for a rule that does not exist", () => {
+    expect(explainRule("not-a-rule")).toBeUndefined();
+  });
+
+  // Regression: `specsy validate` was read as a directory name and reported as
+  // "no spec format detected in .../validate", sending someone hunting for a
+  // spec problem they did not have.
+  it("suggests the right rule for a typo", () => {
+    expect(nearestRules("no-weasle-words")[0]).toBe("no-weasel-words");
+    expect(nearestRules("quantify-perf")[0]).toBe("quantify-performance");
+  });
+
+  it("measures edit distance the usual way", () => {
+    expect(distance("footprnt", "footprint")).toBe(1);
+    expect(distance("same", "same")).toBe(0);
+    expect(distance("", "abc")).toBe(3);
   });
 });

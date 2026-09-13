@@ -22,6 +22,7 @@ import { loadConfig } from "../engine/config.js";
 import { lint, resolveConfig } from "../engine/lint.js";
 import { allRules, getRule } from "../rules/index.js";
 import { measure } from "../footprint.js";
+import { EXAMPLES } from "../explain.js";
 import { SessionUsage, formatCost, formatTokens, inputCost } from "../tokens.js";
 
 const usage = new SessionUsage();
@@ -43,7 +44,7 @@ async function loadProject(root: string, format?: string) {
 }
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "specsy", version: "0.2.0" });
+  const server = new McpServer({ name: "specsy", version: "0.2.1" });
 
   server.registerTool(
     "lint_specs",
@@ -214,55 +215,6 @@ export function createServer(): McpServer {
 
   return server;
 }
-
-/** Worked examples, used by explain_rule. The teaching surface for beginners. */
-const EXAMPLES: Record<string, { why: string; bad: string; good: string }> = {
-  "no-weasel-words": {
-    why: "A word you cannot write a test for is a decision the agent will make for you, silently.",
-    bad: "The export MUST be fast and handle errors gracefully.",
-    good: "The export MUST complete within 2 seconds for 10000 rows, and MUST return HTTP 413 above that.",
-  },
-  "quantify-performance": {
-    why: "Performance without a number is a wish. The agent has to pick a target, and it will pick one you never saw.",
-    bad: "Search MUST be responsive.",
-    good: "Search MUST return results at p95 under 200ms for a 1M-row index.",
-  },
-  "use-normative-keywords": {
-    why: "\"Will\" and \"should probably\" leave it unclear whether something is required or merely nice.",
-    bad: "The system will retry failed uploads.",
-    good: "The system MUST retry a failed upload up to 3 times with exponential backoff.",
-  },
-  "one-requirement-per-statement": {
-    why: "Two obligations in one sentence cannot be tested, traced, or partially satisfied independently.",
-    bad: "The system MUST validate the currency and MUST reject amounts of zero.",
-    good: "The system MUST validate the currency.\nThe system MUST reject an amount of zero.",
-  },
-  "require-acceptance-criteria": {
-    why: "Without a scenario, nothing decides whether the implementation satisfied the requirement.",
-    bad: "### Requirement: Account creation\nThe system MUST create accounts.",
-    good: "### Requirement: Account creation\nThe system MUST create an account from a name and a currency.\n\n#### Scenario: Valid input\n- WHEN a client posts a name and \"EUR\"\n- THEN the account is created",
-  },
-  "require-non-goals": {
-    why: "An unbounded scope is the most common reason an agent builds the wrong thing.",
-    bad: "## What Changes\nAdd CSV export.",
-    good: "## What Changes\nAdd CSV export.\n\n## Non-Goals\n- Scheduled or emailed exports\n- Formats other than CSV",
-  },
-  "no-placeholders": {
-    why: "An agent will implement around a TBD and invent the missing decision rather than stop and ask.",
-    bad: "Session length: TODO decide this.",
-    good: "A session MUST expire 30 minutes after the last request.",
-  },
-  "no-implementation-in-requirements": {
-    why: "Naming a library in a requirement means the spec has to change when the stack does.",
-    bad: "The system MUST cache sessions in Redis.",
-    good: "The system MUST serve a repeat session lookup without hitting the database. (Redis chosen in design.md.)",
-  },
-  "no-dangling-references": {
-    why: "A task citing an id that does not exist means either a typo or a requirement nobody wrote.",
-    bad: "- [ ] 1.1 Add the login form (AUTH-9)   <- no AUTH-9 exists",
-    good: "- [ ] 1.1 Add the login form (AUTH-1)",
-  },
-};
 
 export async function runStdioServer(): Promise<void> {
   const server = createServer();

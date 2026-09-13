@@ -79,8 +79,21 @@ specsy --reporter github    # inline annotations on a PR diff
 specsy --quiet              # errors only
 specsy --max-warnings 0     # treat warnings as failures too
 specsy rules                # list every rule
+specsy explain <rule>       # one rule, with a failing and a passing example
 specsy footprint            # token cost of each change
 specsy mcp                  # run as an MCP server for agents
+```
+
+`specsy --help` lists every command with *when* to reach for it. A mistyped command is caught rather than read as a directory name:
+
+```
+$ specsy footprnt
+Unknown command "footprnt".
+
+Did you mean:  specsy footprint
+Commands:      rules  explain  footprint  mcp
+
+Run 'specsy --help' to see what each one is for.
 ```
 
 Exit codes: `0` clean, `1` findings, `2` the linter itself could not run.
