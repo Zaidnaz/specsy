@@ -101,14 +101,14 @@ Spec Kit and Kiro adapters are the next ones planned. An adapter only has to des
 | `no-weasel-words` | warn | `spec`, `proposal` | Subjective words that cannot be turned into a test. |
 | `quantify-performance` | error | `spec`, `proposal` | Performance claims with no number and unit. |
 | `use-normative-keywords` | warn | `spec` | Soft modals ("will", "needs to") instead of MUST / SHOULD / MAY. |
-| `one-requirement-per-statement` | warn | `spec` | Sentences bundling several obligations into one. |
+| `one-requirement-per-statement` | warn | `spec` | Sentences bundling several obligations into one. Line wrapping does not affect it. |
 | `no-ambiguous-pronoun` | warn | `spec` | Requirements opening with a pronoun that has no antecedent. |
 | `require-acceptance-criteria` | error | `spec` | Requirements with no scenario to verify them. |
 | `no-placeholders` | error | all | TODO/TBD markers and unfilled template slots. |
 | `no-empty-sections` | warn | all | Headings with nothing beneath them. |
 | `require-sections` | warn | `proposal`, `design` | Documents missing the sections their kind expects. |
 | `no-implementation-in-requirements` | warn | `spec` | Requirements naming a library instead of a behaviour. |
-| `unique-requirement-ids` | error | all | Two requirements sharing an id. |
+| `unique-requirement-ids` | error | all | Two requirements sharing an id, anywhere in the change. |
 | `tasks-reference-requirements` | warn | `tasks` | Tasks not linked to any requirement. †|
 | `no-dangling-references` | error | `tasks` | Tasks citing a requirement id that does not exist. |
 | `requirements-have-tasks` | warn | `spec` | Requirements no task implements. †|
@@ -118,6 +118,8 @@ Spec Kit and Kiro adapters are the next ones planned. An adapter only has to des
 † **These three rules switch themselves on.** Requirement ids and task citations are disciplines a team opts into — no spec format mandates them, and OpenSpec's `tasks.md` never cites requirements. Demanding them unconditionally would flag every line of a perfectly good spec, so each rule stays silent until the change already uses the convention somewhere. Adopt ids on one requirement and the rest of the spec is held to it.
 
 Code fences are never linted, so example snippets inside a spec stay untouched.
+
+**Requirement id format.** An id is `PREFIX-N` — two to five uppercase alphanumerics, a hyphen, then digits: `REQ-001`, `ACCT-14`, `TXN-7`. It must open the requirement's heading (`### Requirement: ACCT-001 Account creation`), and ids must be unique across the whole change, not merely within one file — a task citing `ACCT-001` cannot tell two `spec.md` files apart. Ids are optional; see the † note above.
 
 Standards references are not requirement ids. `ISO-4217`, `ISO-8601`, `RFC-3339` and `SHA-256` match the shape of an id but are excluded, and a requirement takes its id only from the start of its heading (`### Requirement: REQ-014 Account creation`) — a mention in prose never christens one.
 

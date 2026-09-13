@@ -1,6 +1,6 @@
 {
   "name": "specsy",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A linter for specifications. Catches vague, untestable, and untraceable requirements before an AI agent turns them into code.",
   "keywords": ["spec-driven-development", "sdd", "linter", "openspec", "spec-kit", "ai-agents", "requirements"],
   "license": "MIT",

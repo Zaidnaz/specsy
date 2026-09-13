@@ -116,16 +116,28 @@ export const oneRequirementPerStatement: Rule = {
   appliesTo: ["spec"],
   check(doc, ctx) {
     for (const req of doc.requirements) {
-      for (const { text, span } of requirementLines(req)) {
-        for (const sentence of sentences(text)) {
-          if (countMatches(sentence, NORMATIVE) < 2) continue;
-          ctx.report({
-            message: "This sentence states more than one obligation.",
-            span,
-            hint: "Split it. One requirement per statement keeps each independently testable and traceable.",
-          });
-          break;
-        }
+      // Join the requirement's lines before splitting into sentences. Checking
+      // line by line let a compound sentence escape simply by being wrapped,
+      // and made the finding depend on where the author happened to hit enter.
+      const lines = [...requirementLines(req)];
+      const marks: { start: number; span: typeof lines[number]["span"] }[] = [];
+      let offset = 0;
+      for (const line of lines) {
+        marks.push({ start: offset, span: line.span });
+        offset += line.text.length + 1; // the joining space
+      }
+      const full = lines.map((l) => l.text).join(" ");
+
+      for (const sentence of sentences(full)) {
+        if (countMatches(sentence, NORMATIVE) < 2) continue;
+        const at = full.indexOf(sentence);
+        const mark = [...marks].reverse().find((m) => m.start <= at) ?? marks[0];
+        ctx.report({
+          message: "This sentence states more than one obligation.",
+          ...(mark ? { span: mark.span } : { span: req.span }),
+          hint: "Split it. One requirement per statement keeps each independently testable and traceable.",
+        });
+        break;
       }
     }
   },

@@ -216,3 +216,31 @@ describe("requirement id extraction", () => {
     expect(fired(await run("messy"))).toContain("require-requirement-ids");
   });
 });
+
+describe("ids and obligations across files and line wraps", () => {
+  // Both found by an agent working in a real OpenSpec repo, which had adopted
+  // ACCT-/TXN-/BAL- prefixes specifically to route around the first one.
+  it("catches a duplicate id shared by two files in one change", async () => {
+    const d = (await run("id-edges")).diagnostics.find((x) => x.rule === "unique-requirement-ids");
+    expect(d?.severity).toBe("error");
+    expect(d?.message).toContain("DUP-001");
+    // Naming the file matters: every file in an OpenSpec change is spec.md.
+    expect(d?.message).toContain("specs/a/spec.md");
+  });
+
+  // Regression: sentences were split per physical line, so a compound
+  // requirement escaped simply by being wrapped.
+  it("catches a compound sentence broken across a line wrap", async () => {
+    const hits = (await run("id-edges")).diagnostics.filter(
+      (d) => d.rule === "one-requirement-per-statement",
+    );
+    expect(hits).toHaveLength(1);
+  });
+
+  it("leaves correctly split obligations alone", async () => {
+    const hits = (await run("id-edges")).diagnostics.filter(
+      (d) => d.rule === "one-requirement-per-statement" && d.span.line > 18,
+    );
+    expect(hits).toEqual([]);
+  });
+});

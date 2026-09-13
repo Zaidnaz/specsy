@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { Rule } from "../engine/types.js";
 import { changeRequirements, changeTasks } from "../model.js";
 
@@ -12,19 +13,24 @@ export const uniqueRequirementIds: Rule = {
   description: "Two requirements must not share an id.",
   defaultSeverity: "error",
   check(doc, ctx) {
-    const seen = new Map<string, number>();
+    // Scope is the change, not the file. A change routinely splits its specs
+    // across specs/<capability>/spec.md, and a task citing REQ-001 cannot tell
+    // two files apart -- so a collision between them is exactly as broken as
+    // one inside a single file.
+    const all = ctx.change.documents.flatMap((d) => d.requirements.map((r) => ({ req: r, doc: d })));
     for (const req of doc.requirements) {
       if (!req.id) continue;
-      const prev = seen.get(req.id);
-      if (prev !== undefined) {
-        ctx.report({
-          message: `Duplicate requirement id "${req.id}" (also on line ${prev}).`,
-          span: req.span,
-          hint: "Ids are how tasks, tests and commits point back here. Duplicates silently merge two requirements.",
-        });
-        continue;
-      }
-      seen.set(req.id, req.span.line);
+      const first = all.find((e) => e.req.id === req.id);
+      if (!first || first.req === req) continue; // this one is the original
+      const where =
+        first.doc.path === doc.path
+          ? `line ${first.req.span.line}`
+          : `${path.relative(ctx.change.root, first.doc.path).split(path.sep).join("/")} line ${first.req.span.line}`;
+      ctx.report({
+        message: `Duplicate requirement id "${req.id}" (also at ${where}).`,
+        span: req.span,
+        hint: "Ids are how tasks, tests and commits point back here. Duplicates silently merge two requirements.",
+      });
     }
   },
 };
