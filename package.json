@@ -1,0 +1,31 @@
+{
+  "name": "spec-lint",
+  "version": "0.1.0",
+  "description": "A linter for specifications. Catches vague, untestable, and untraceable requirements before an AI agent turns them into code.",
+  "keywords": ["spec-driven-development", "sdd", "linter", "openspec", "spec-kit", "ai-agents", "requirements"],
+  "license": "MIT",
+  "type": "module",
+  "bin": { "spec-lint": "./dist/cli.js" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "pnpm build && pnpm test"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "fast-glob": "^3.3.2",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
