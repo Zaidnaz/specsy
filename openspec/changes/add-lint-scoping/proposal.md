@@ -12,7 +12,19 @@ into `specs/`, so the signal-to-noise ratio of a run gets monotonically worse ov
 of a project. A linter that reports mostly un-actionable findings gets run with `--quiet`,
 then not at all.
 
-There is no way to narrow the run today. Two things a user would reasonably try both fail:
+The concept already exists — on one surface only. The MCP `lint_specs` tool takes a
+`change` argument, and refuses an unknown id by naming it and listing the ids that exist.
+The CLI has no equivalent. So an agent driving specsy over MCP can narrow a run, while a
+human or a CI job driving the same tool from the command line cannot. That split is its own
+problem: the two surfaces should not disagree about what the tool can do.
+
+The existing implementation also narrows in the most expensive way available. It filters
+`project.changes` *after* `loadProject` has already read and parsed every markdown file,
+including the whole living spec it is about to discard. And it matches on `c.id`, so the
+living-spec pseudo-change is selectable by its display id `(living spec)` — an identifier
+that exists to be shown to users, not to be matched against.
+
+From the command line, two things a user would reasonably try both fail:
 
 - `specsy openspec/changes` exits 2 with "No spec format detected". `specRoot()` looks for a
   `changes` directory directly beneath the path it is given, or for `openspec/changes`
@@ -29,6 +41,9 @@ There is no way to narrow the run today. Two things a user would reasonably try 
 - Add `--scope <all|changes|living>` to the CLI, and a matching `"scope"` key in
   `.specsyrc.json`. The CLI flag overrides the config file.
 - Add `--change <id>` to lint exactly one in-flight change by its directory name.
+- Move the MCP `lint_specs` `change` argument onto the same scope resolution, so the two
+  surfaces narrow identically and the filtering stops happening after the work of reading
+  the excluded files has already been done.
 - Report the active scope in the summary line, so a run that finds nothing says what it
   actually checked rather than leaving the reader to assume.
 - Treat a scope that selects **nothing** as an error, not a successful run. A gate that
@@ -68,8 +83,12 @@ no existing specs.
 
 - **Affected code**: `src/cli.ts` (two new options), `src/engine/types.ts` (`scope` on
   `Config`), `src/adapters/types.ts` and `src/adapters/openspec.ts` (honour the scope when
-  loading), `src/adapters/generic.ts` (declare that it has no changes), and `src/report/`
-  (surface the active scope).
+  loading), `src/adapters/generic.ts` (declare that it has no changes), `src/report/`
+  (surface the active scope), and `src/mcp/server.ts` (reuse the shared resolution instead
+  of filtering `project.changes` itself).
+- **MCP behavior**: `lint_specs` keeps its `change` argument and its current refusal
+  message. What changes underneath is that it stops reading files it will discard, and
+  stops accepting `(living spec)` as a selectable id.
 - **Behavior**: no change for any existing invocation. `--scope all` is the default and is
   what every current run already does.
 - **Exit codes**: unchanged for existing runs. Two new exit-2 conditions, both for

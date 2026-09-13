@@ -1,42 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" width="1200" height="470" role="img" aria-label="specsy workflow: write the spec, specsy checks it, then the agent implements it">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" role="img" aria-label="The loop: you describe a feature, the agent writes a spec, lints it with specsy, fixes what it finds, and only then implements">
   <defs>
     <marker id="ah-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1a7f37"/></marker>
     <marker id="ah-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#59636e"/></marker>
     <marker id="ah-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#9a6700"/></marker>
+    <marker id="ah-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0969da"/></marker>
   </defs>
-  <rect x="0.0" y="0.0" width="1200.0" height="470.0" rx="0" fill="#ffffff"/>
-  <rect x="40.0" y="80.0" width="300.0" height="210.0" rx="10" fill="#f6f8fa" stroke="#d1d9e0" stroke-width="1.5"/>
-  <text x="68.0" y="106.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#0969da" font-weight="700" letter-spacing="1.4">STEP 1</text>
-  <text x="68.0" y="134.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" fill="#1f2328" font-weight="700">Write the spec</text>
-  <text x="68.0" y="168.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#0969da">proposal.md</text>
-  <text x="68.0" y="196.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#0969da">spec.md</text>
-  <text x="68.0" y="224.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#0969da">tasks.md</text>
-  <text x="68.0" y="268.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" fill="#59636e">OpenSpec · Spec Kit · any markdown</text>
-  <rect x="420.0" y="50.0" width="340.0" height="270.0" rx="10" fill="#f6f8fa" stroke="#0969da" stroke-width="2.5"/>
-  <text x="448.0" y="76.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#0969da" font-weight="700" letter-spacing="1.4">STEP 2</text>
-  <text x="448.0" y="104.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" fill="#1f2328" font-weight="700">specsy checks it</text>
-  <text x="448.0" y="142.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#1f2328">clarity</text>
-  <text x="732.0" y="142.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#59636e" text-anchor="end">6 rules</text>
-  <text x="448.0" y="172.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#1f2328">structure</text>
-  <text x="732.0" y="172.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#59636e" text-anchor="end">4 rules</text>
-  <text x="448.0" y="202.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#1f2328">traceability</text>
-  <text x="732.0" y="202.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#59636e" text-anchor="end">4 rules</text>
-  <text x="448.0" y="232.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#1f2328">scope</text>
-  <text x="732.0" y="232.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#59636e" text-anchor="end">2 rules</text>
-  <line x1="448" y1="270" x2="732" y2="270" stroke="#d1d9e0" stroke-width="1"/>
-  <text x="448.0" y="298.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" fill="#59636e">16 deterministic rules · no LLM · no API key</text>
-  <rect x="840.0" y="80.0" width="320.0" height="210.0" rx="10" fill="#f6f8fa" stroke="#d1d9e0" stroke-width="1.5"/>
-  <text x="868.0" y="106.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#0969da" font-weight="700" letter-spacing="1.4">STEP 3</text>
-  <text x="868.0" y="134.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" fill="#1f2328" font-weight="700">The agent builds it</text>
-  <text x="868.0" y="168.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#59636e">Nothing ambiguous left to invent.</text>
-  <text x="868.0" y="196.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#59636e">Every task cites a requirement.</text>
-  <text x="868.0" y="224.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#59636e">Every requirement is testable.</text>
-  <text x="868.0" y="268.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" fill="#59636e">Claude Code · Copilot · Cursor · …</text>
-  <line x1="340" y1="185" x2="404" y2="185" stroke="#59636e" stroke-width="2.5" marker-end="url(#ah-m)"/>
-  <line x1="760" y1="185" x2="824" y2="185" stroke="#1a7f37" stroke-width="2.5" marker-end="url(#ah-g)"/>
-  <text x="792.0" y="168.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="14" fill="#1a7f37" font-weight="600" text-anchor="middle">pass</text>
-  <path d="M 590 320 L 590 392 Q 590 404 578 404 L 202 404 Q 190 404 190 392 L 190 300" fill="none" stroke="#9a6700" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#ah-a)"/>
-  <rect x="300.0" y="386.0" width="380.0" height="36.0" rx="18" fill="#ffffff" stroke="#9a6700" stroke-width="1.5"/>
-  <text x="490.0" y="410.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="15" fill="#9a6700" font-weight="600" text-anchor="middle">findings → file:line + how to fix</text>
-  <text x="600.0" y="452.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#59636e" text-anchor="middle">Runs in pre-commit and CI · exits 1 on findings</text>
+  <rect x="0.0" y="0.0" width="1200.0" height="500.0" rx="0" fill="#ffffff"/>
+  <rect x="40.0" y="98.0" width="250.0" height="90.0" rx="10" fill="#f6f8fa" stroke="#d1d9e0" stroke-width="1.5"/>
+  <text x="68.0" y="124.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#0969da" font-weight="700" letter-spacing="1.4">STEP 1</text>
+  <text x="68.0" y="150.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#1f2328" font-weight="700">You describe</text>
+  <text x="68.0" y="172.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#1f2328" font-weight="700">the feature</text>
+  <rect x="330.0" y="60.0" width="520.0" height="330.0" rx="10" fill="#f6f8fa" stroke="#0969da" stroke-width="2.5"/>
+  <text x="380.0" y="92.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#0969da" font-weight="700" letter-spacing="1.4">STEP 2</text>
+  <text x="444.0" y="92.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#59636e">Your agent, on its own</text>
+  <rect x="380.0" y="120.0" width="420.0" height="46.0" rx="8" fill="#ffffff" stroke="#d1d9e0" stroke-width="1.5"/>
+  <text x="590.0" y="149.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#1f2328" text-anchor="middle">writes the spec</text>
+  <rect x="380.0" y="196.0" width="420.0" height="46.0" rx="8" fill="#ffffff" stroke="#0969da" stroke-width="2"/>
+  <text x="590.0" y="225.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#0969da" font-weight="600" text-anchor="middle">calls lint_specs</text>
+  <rect x="380.0" y="272.0" width="420.0" height="46.0" rx="8" fill="#ffffff" stroke="#9a6700" stroke-width="1.5"/>
+  <text x="590.0" y="301.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="16" fill="#9a6700" text-anchor="middle">reads the fix, rewrites the spec</text>
+  <line x1="590" y1="166" x2="590" y2="190" stroke="#59636e" stroke-width="2.5" marker-end="url(#ah-m)"/>
+  <line x1="590" y1="242" x2="590" y2="266" stroke="#9a6700" stroke-width="2.5" marker-end="url(#ah-a)"/>
+  <text x="606.0" y="261.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="13" fill="#9a6700" font-weight="600">findings</text>
+  <path d="M 380 295 L 356 295 Q 348 295 348 287 L 348 227 Q 348 219 356 219 L 374 219" fill="none" stroke="#9a6700" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#ah-a)"/>
+  <text x="380.0" y="356.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" fill="#59636e">16 deterministic rules · no LLM · no API key</text>
+  <rect x="930.0" y="174.0" width="230.0" height="90.0" rx="10" fill="#f6f8fa" stroke="#1a7f37" stroke-width="1.5"/>
+  <text x="958.0" y="200.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#0969da" font-weight="700" letter-spacing="1.4">STEP 3</text>
+  <text x="958.0" y="226.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#1f2328" font-weight="700">It implements</text>
+  <text x="958.0" y="248.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#1f2328" font-weight="700">the change</text>
+  <line x1="290" y1="143" x2="374" y2="143" stroke="#59636e" stroke-width="2.5" marker-end="url(#ah-m)"/>
+  <line x1="804" y1="219" x2="926" y2="219" stroke="#1a7f37" stroke-width="2.5" marker-end="url(#ah-g)"/>
+  <text x="890.0" y="206.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="14" fill="#1a7f37" font-weight="600" text-anchor="middle">clean</text>
+  <text x="600.0" y="438.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="16" fill="#1f2328" text-anchor="middle">The agent calls the rules itself — nobody copies output between windows</text>
+  <text x="600.0" y="466.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="15" fill="#0969da" text-anchor="middle">claude mcp add specsy -- npx -y specsy mcp</text>
 </svg>

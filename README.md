@@ -48,7 +48,9 @@ specsy is the compiler pass that was missing. It reads the specs you already hav
   </picture>
 </p>
 
-specsy sits between the spec you wrote and the agent that implements it. Findings come back with a `file:line` and a concrete fix, and the command exits `1` — so a spec that cannot be built correctly never reaches the agent in the first place.
+specsy sits between the spec and the code. Findings come back with a `file:line` and a concrete fix, and the command exits `1` — so a spec that cannot be built correctly never reaches the implementation step.
+
+With the [MCP server](#use-it-from-an-agent-mcp) the agent operates that gate itself: it writes a spec, lints it, reads the fix, rewrites, and only implements once the spec is clean. Nobody copies output between windows.
 
 ## Install
 
@@ -83,6 +85,13 @@ specsy explain <rule>       # one rule, with a failing and a passing example
 specsy footprint            # token cost of each change
 specsy mcp                  # run as an MCP server for agents
 ```
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/commands-dark.svg">
+    <img alt="What to call and when: specsy to lint, specsy rules to learn the bar, specsy explain for one rule, specsy footprint for context cost, specsy mcp to serve an agent." src="assets/commands-light.svg" width="900">
+  </picture>
+</p>
 
 `specsy --help` lists every command with *when* to reach for it. A mistyped command is caught rather than read as a directory name:
 

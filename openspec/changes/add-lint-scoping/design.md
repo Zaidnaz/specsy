@@ -39,9 +39,12 @@ needs no per-rule care and cannot regress as rules are added.
 
 *Alternatives considered:* filtering the `SpecProject` after `load()` — simpler to write,
 but it reads and parses every markdown file in the living spec only to discard it, which is
-the bulk of the work in a large project and defeats half the point. Filtering diagnostics
-after `lint()` — worse still, and it would let a cross-document rule see documents the user
-excluded, making findings depend on out-of-scope content.
+the bulk of the work in a large project and defeats half the point. This is what
+`src/mcp/server.ts` does today, and moving it onto the shared path is part of this change
+rather than a separate cleanup: leaving two narrowing implementations is how the two
+surfaces drift apart again. Filtering diagnostics after `lint()` — worse still, and it
+would let a cross-document rule see documents the user excluded, making findings depend on
+out-of-scope content.
 
 ### `--change <id>` is a scope, not a separate mechanism
 
@@ -71,8 +74,10 @@ Filtering reads the field.
 
 *Why:* `(living spec)` is currently load-bearing as an identifier while also being a label
 shown to users. Renaming the label would silently change filtering. Splitting identity from
-presentation removes a trap that this change would otherwise be the first to step into —
-and `--change "(living spec)"` must not select it, which the field makes obvious.
+presentation removes a trap the codebase has already fallen into: `src/mcp/server.ts`
+matches `c.id === change`, so `lint_specs` with `change: "(living spec)"` selects the
+pseudo-change today. `--change "(living spec)"` must not, and the field makes that obvious
+rather than relying on someone remembering to special-case the string.
 
 ### Empty selections are errors, and the exit code is 2
 

@@ -21,6 +21,7 @@
 - [ ] 4.1 Refuse an unknown change id, reporting the id and listing the in-flight change ids that do exist, exiting `2`; verify with tests covering a typo'd id and an archived id, both asserting exit `2` and that the run reports no findings as success (SCOPE-002)
 - [ ] 4.2 Refuse a selection that resolves to no documents, reporting that the selection covered nothing and exiting `2`; verify with tests covering a scope of `changes` with no in-flight change and a scope of `living` with no living spec (SCOPE-003)
 - [ ] 4.3 Refuse a change-based scope against an adapter whose `hasChanges` is false, exiting `2`; verify with a test running a change-based scope against the generic adapter and asserting the message and exit code (SCOPE-004)
+- [ ] 4.4 Move the `change` argument of MCP `lint_specs` in `src/mcp/server.ts` onto the shared scope resolution, dropping its own `project.changes` filter so excluded files are never read; verify with tests asserting the existing refusal message for an unknown id is unchanged and that `(living spec)` is no longer selectable as a change id (SCOPE-002, SCOPE-003)
 
 ## 5. Reporting
 
