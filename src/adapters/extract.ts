@@ -122,6 +122,7 @@ export function extractRequirements(raw: string, file: string, kind: DocKind): R
       ...(id ? { id } : {}),
       text: `${name}\n${sec.body}`.trim(),
       span: sec.span,
+      bodyStartLine: sec.bodyStartLine,
       criteria,
       sectionTitle: name,
     });

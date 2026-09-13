@@ -11,7 +11,12 @@ export function* requirementLines(req: Requirement): Generator<{ text: string; s
   for (let i = 0; i < lines.length; i++) {
     const text = stripNoise(lines[i] ?? "").trim();
     if (!text) continue;
-    yield { text, span: { ...req.span, line: req.span.line + i } };
+    // Index 0 is the heading. Everything after belongs to the body, which
+    // starts at bodyStartLine -- offsetting from the heading skips the blank
+    // line almost every spec puts between them, reporting one line short.
+    const line =
+      i === 0 || req.bodyStartLine === undefined ? req.span.line + i : req.bodyStartLine + i - 1;
+    yield { text, span: { ...req.span, line } };
   }
 }
 
@@ -32,7 +37,9 @@ export function countMatches(text: string, pattern: RegExp): number {
 /** Case-insensitive word-boundary alternation from a word list. */
 export function wordListPattern(words: string[]): RegExp {
   const escaped = words.map((w) => w.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).filter(Boolean);
-  return new RegExp(`\\b(${escaped.join("|")})\\b`, "gi");
+  // "how many documents did it cover" asks a question; "many documents"
+  // makes a vague claim. The lookbehind keeps the interrogative out.
+  return new RegExp(`(?<!\\bhow )\\b(${escaped.join("|")})\\b`, "gi");
 }
 
 /**

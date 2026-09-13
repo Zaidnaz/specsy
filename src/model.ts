@@ -57,6 +57,13 @@ export interface Requirement {
   id?: string;
   text: string;
   span: Span;
+  /**
+   * 1-indexed source line of the first body line. `span.line` is the heading,
+   * and blank lines may sit between the two, so the body cannot be located by
+   * offsetting from the heading. Absent for requirements parsed from a single
+   * prose line, where the whole requirement is `span.line`.
+   */
+  bodyStartLine?: number;
   criteria: Criterion[];
   /** Title of the nearest enclosing heading, for grouping in reports. */
   sectionTitle?: string;

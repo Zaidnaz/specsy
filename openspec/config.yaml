@@ -1,0 +1,52 @@
+schema: spec-driven
+
+context: |
+  Project: specsy — a linter for specifications. It catches vague, untestable, and
+  untraceable requirements before an agent turns them into code.
+
+  Tech stack:
+  - TypeScript (strict, NodeNext ESM), Node >=18
+  - commander for the CLI, fast-glob for scanning, picocolors for output
+  - Vitest for tests, under `tests/`
+  - pnpm for package management
+
+  Architecture:
+  - `src/adapters/` turn a directory layout into the model. Each adapter describes one
+    layout (`openspec`, `generic`) and nothing else. `extract.ts` holds the shared
+    markdown-to-model extraction every adapter reuses.
+  - `src/model.ts` defines SpecProject / SpecChange / SpecDocument / Requirement / Task.
+    A SpecChange is the unit of change: every document that belongs together.
+  - `src/rules/` holds the rules, grouped as clarity, structure, scope, traceability.
+    A rule runs once per document and reads cross-document state off `ctx.change`.
+  - `src/engine/` resolves config and runs the rules.
+  - `src/report/` renders results as pretty, json, or github.
+
+  Conventions:
+  - Rules are data: adding one means adding to the array in `src/rules/index.ts`.
+    Nothing else should need to change.
+  - Every rule carries a `hint` that says what to do, not just what is wrong. The hint is
+    the whole product for a user who does not already know the convention.
+  - Findings must be stable: the same document must produce the same findings regardless
+    of how the text happens to be wrapped, or which directory the tool was invoked from.
+  - False positives are worse than false negatives. A linter that cries wolf gets
+    disabled, and then catches nothing at all.
+  - Prefer adding a focused rule over broadening an existing one.
+
+  Domain vocabulary:
+  - A "change" is an in-flight unit of work under `changes/<id>/`, not yet archived.
+  - The "living spec" is `specs/**`, the accumulated source of truth. The OpenSpec adapter
+    currently loads it as a pseudo-change with the id `(living spec)`.
+  - "Archived" changes under `changes/archive/` are already folded into the living spec
+    and are skipped.
+
+rules:
+  proposal:
+    - State non-goals explicitly.
+    - Name the concrete user-visible symptom, not just the internal defect.
+  specs:
+    - "Write requirements as observable CLI behavior: what the user runs and what they see."
+    - Give every requirement an explicit id that opens the heading.
+    - Include the exit-code consequence wherever a requirement changes what is reported.
+  tasks:
+    - Order tasks so each one leaves the repo typechecking and the test suite green.
+    - Every task that adds behavior pairs it with its test in the same task.

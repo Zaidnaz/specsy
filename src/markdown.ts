@@ -140,6 +140,15 @@ export function stripNoise(text: string): string {
     .replace(/<[^>\s]+>/g, " ");
 }
 
+/**
+ * Blank out inline code spans, leaving everything else in place. Inline code
+ * is as literal as a fenced block: `--scope <name>` is CLI notation, not an
+ * unfilled template slot.
+ */
+export function stripInlineCode(text: string): string {
+  return text.replace(/`[^`]*`/g, (m) => " ".repeat(m.length));
+}
+
 /** Find a section whose title matches any of the given patterns. */
 export function findSection(sections: Section[], patterns: RegExp[]): Section | undefined {
   return sections.find((s) => patterns.some((p) => p.test(s.title)));

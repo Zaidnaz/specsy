@@ -16,7 +16,7 @@ const program = new Command();
 program
   .name("specsy")
   .description("A linter for specifications. Catches vague, untestable and untraceable requirements before an agent turns them into code.")
-  .version("0.1.3");
+  .version("0.1.4");
 
 program
   .argument("[path]", "directory holding the specs", ".")

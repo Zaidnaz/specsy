@@ -1,5 +1,5 @@
 import type { Rule } from "../engine/types.js";
-import { readLines } from "../markdown.js";
+import { readLines, stripInlineCode } from "../markdown.js";
 
 /** Placeholders that mean "not written yet" but pass a human skim. */
 const PLACEHOLDER = /\b(TODO|TBD|FIXME|XXX|\?\?\?|WIP|COMING SOON|FILL ME IN|LOREM IPSUM)\b/i;
@@ -21,13 +21,19 @@ export const noPlaceholders: Rule = {
   check(doc, ctx) {
     for (const line of readLines(doc.raw)) {
       if (line.inCode) continue;
-      const m = PLACEHOLDER.exec(line.text) ?? UNFILLED_SLOT.exec(line.text);
-      if (!m) continue;
-      ctx.report({
-        message: `Unfinished spec: "${m[0].trim()}".`,
-        span: { file: doc.path, line: line.number, column: (m.index ?? 0) + 1, text: line.text },
-        hint: "An agent will happily implement around a TBD and invent the missing decision.",
-      });
+      // Code spans are blanked rather than removed, so columns still line up
+      // with the original source.
+      const text = stripInlineCode(line.text);
+      for (const pattern of [PLACEHOLDER, UNFILLED_SLOT]) {
+        const global = new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`);
+        for (const m of text.matchAll(global)) {
+          ctx.report({
+            message: `Unfinished spec: "${m[0].trim()}".`,
+            span: { file: doc.path, line: line.number, column: (m.index ?? 0) + 1, text: line.text },
+            hint: "An agent will happily implement around a TBD and invent the missing decision.",
+          });
+        }
+      }
     }
   },
 };

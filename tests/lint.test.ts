@@ -244,3 +244,37 @@ describe("ids and obligations across files and line wraps", () => {
     expect(hits).toEqual([]);
   });
 });
+
+describe("reporting accuracy", () => {
+  const at = async (rule: string) =>
+    (await run("reporting")).diagnostics.filter((d) => d.rule === rule);
+
+  // Regression: body lines were offset from the heading, which skips the blank
+  // line almost every spec puts between the two. Every finding inside a
+  // requirement body landed one line short, sending editors and GitHub
+  // annotations to the wrong line.
+  it("reports a body finding on its true source line", async () => {
+    const d = (await at("no-weasel-words")).find((x) => x.message.includes("robust"));
+    expect(d?.span.line).toBe(7);
+    expect(d?.span.column).toBe(20);
+  });
+
+  it("reports later body lines correctly too", async () => {
+    const d = (await at("no-weasel-words")).find((x) => x.message.includes("correctly"));
+    expect(d?.span.line).toBe(14);
+  });
+
+  // Regression: `--scope <name>` in inline code was reported as an unfinished
+  // template slot, at error severity, failing builds for anyone documenting a
+  // CLI. Inline code is as literal as a fenced block.
+  it("does not treat CLI metavariables in inline code as placeholders", async () => {
+    expect(await at("no-placeholders")).toEqual([]);
+  });
+
+  // Regression: "how many documents" asks a question; only "many documents"
+  // makes a vague claim.
+  it("does not flag \"many\" in \"how many\"", async () => {
+    const hits = (await at("no-weasel-words")).filter((d) => d.message.includes('"many"'));
+    expect(hits).toEqual([]);
+  });
+});
