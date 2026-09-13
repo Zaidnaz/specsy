@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" width="1200" height="470" role="img" aria-label="specsy workflow: write the spec, specsy checks it, then the agent implements it">
+  <defs>
+    <marker id="ah-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3fb950"/></marker>
+    <marker id="ah-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#9198a1"/></marker>
+    <marker id="ah-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#d29922"/></marker>
+  </defs>
+  <rect x="0.0" y="0.0" width="1200.0" height="470.0" rx="0" fill="#0d1117"/>
+  <rect x="40.0" y="80.0" width="300.0" height="210.0" rx="10" fill="#161b22" stroke="#3d444d" stroke-width="1.5"/>
+  <text x="68.0" y="106.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#4493f8" font-weight="700" letter-spacing="1.4">STEP 1</text>
+  <text x="68.0" y="134.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" fill="#f0f6fc" font-weight="700">Write the spec</text>
+  <text x="68.0" y="168.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#4493f8">proposal.md</text>
+  <text x="68.0" y="196.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#4493f8">spec.md</text>
+  <text x="68.0" y="224.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#4493f8">tasks.md</text>
+  <text x="68.0" y="268.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" fill="#9198a1">OpenSpec · Spec Kit · any markdown</text>
+  <rect x="420.0" y="50.0" width="340.0" height="270.0" rx="10" fill="#161b22" stroke="#4493f8" stroke-width="2.5"/>
+  <text x="448.0" y="76.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#4493f8" font-weight="700" letter-spacing="1.4">STEP 2</text>
+  <text x="448.0" y="104.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" fill="#f0f6fc" font-weight="700">specsy checks it</text>
+  <text x="448.0" y="142.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#f0f6fc">clarity</text>
+  <text x="732.0" y="142.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#9198a1" text-anchor="end">6 rules</text>
+  <text x="448.0" y="172.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#f0f6fc">structure</text>
+  <text x="732.0" y="172.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#9198a1" text-anchor="end">4 rules</text>
+  <text x="448.0" y="202.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#f0f6fc">traceability</text>
+  <text x="732.0" y="202.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#9198a1" text-anchor="end">4 rules</text>
+  <text x="448.0" y="232.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#f0f6fc">scope</text>
+  <text x="732.0" y="232.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="17" fill="#9198a1" text-anchor="end">2 rules</text>
+  <line x1="448" y1="270" x2="732" y2="270" stroke="#3d444d" stroke-width="1"/>
+  <text x="448.0" y="298.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" fill="#9198a1">16 deterministic rules · no LLM · no API key</text>
+  <rect x="840.0" y="80.0" width="320.0" height="210.0" rx="10" fill="#161b22" stroke="#3d444d" stroke-width="1.5"/>
+  <text x="868.0" y="106.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#4493f8" font-weight="700" letter-spacing="1.4">STEP 3</text>
+  <text x="868.0" y="134.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" fill="#f0f6fc" font-weight="700">The agent builds it</text>
+  <text x="868.0" y="168.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#9198a1">Nothing ambiguous left to invent.</text>
+  <text x="868.0" y="196.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#9198a1">Every task cites a requirement.</text>
+  <text x="868.0" y="224.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#9198a1">Every requirement is testable.</text>
+  <text x="868.0" y="268.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" fill="#9198a1">Claude Code · Copilot · Cursor · …</text>
+  <line x1="340" y1="185" x2="404" y2="185" stroke="#9198a1" stroke-width="2.5" marker-end="url(#ah-m)"/>
+  <line x1="760" y1="185" x2="824" y2="185" stroke="#3fb950" stroke-width="2.5" marker-end="url(#ah-g)"/>
+  <text x="792.0" y="168.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="14" fill="#3fb950" font-weight="600" text-anchor="middle">pass</text>
+  <path d="M 590 320 L 590 392 Q 590 404 578 404 L 202 404 Q 190 404 190 392 L 190 300" fill="none" stroke="#d29922" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#ah-a)"/>
+  <rect x="300.0" y="386.0" width="380.0" height="36.0" rx="18" fill="#0d1117" stroke="#d29922" stroke-width="1.5"/>
+  <text x="490.0" y="410.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="15" fill="#d29922" font-weight="600" text-anchor="middle">findings → file:line + how to fix</text>
+  <text x="600.0" y="452.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#9198a1" text-anchor="middle">Runs in pre-commit and CI · exits 1 on findings</text>
+</svg>

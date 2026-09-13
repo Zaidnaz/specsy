@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="specsy - a linter for specifications">
+  <rect x="0.0" y="0.0" width="1200.0" height="300.0" rx="0" fill="#ffffff"/>
+  <text x="80.0" y="96.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="62" fill="#1f2328" font-weight="700">specsy</text>
+  <text x="80.0" y="134.0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="22" fill="#59636e">A linter for specifications</text>
+  <rect x="930.0" y="62.0" width="190.0" height="40.0" rx="20" fill="#f6f8fa" stroke="#d1d9e0" stroke-width="1.5"/>
+  <text x="1025.0" y="89.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="18" fill="#0969da" text-anchor="middle">npx specsy</text>
+  <rect x="60.0" y="168.0" width="1080.0" height="108.0" rx="10" fill="#f6f8fa" stroke="#d1d9e0" stroke-width="1.5"/>
+  <text x="96.0" y="212.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="30" fill="#1f2328" textLength="334.8" lengthAdjust="spacing">The system MUST be</text>
+  <text x="449.4" y="212.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="30" fill="#cf222e" font-weight="600" textLength="74.4" lengthAdjust="spacing">fast</text>
+  <text x="523.8" y="212.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="30" fill="#1f2328" textLength="18.6" lengthAdjust="spacing">.</text>
+  <path d="M 449.4 224.0 Q 453.9 220.5 458.4 224.0 Q 462.9 227.5 467.4 224.0 Q 471.9 220.5 476.4 224.0 Q 480.9 227.5 485.4 224.0 Q 489.9 220.5 494.4 224.0 Q 498.9 227.5 503.4 224.0 Q 507.9 220.5 512.4 224.0 Q 516.9 227.5 521.4 224.0 Q 522.6 220.5 523.8 224.0" fill="none" stroke="#cf222e" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 453.4 232 L 453.4 250" fill="none" stroke="#59636e" stroke-width="1.5" opacity="0.55"/>
+  <text x="463.4" y="256.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="15" fill="#cf222e" font-weight="600" textLength="180.0" lengthAdjust="spacing">quantify-performance</text>
+  <text x="655.4" y="256.0" font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace" font-size="14" fill="#59636e" textLength="453.6" lengthAdjust="spacing">no target given — state a budget, e.g. p95 under 200ms</text>
+</svg>

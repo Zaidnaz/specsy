@@ -1,4 +1,16 @@
-# specsy
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
+    <img alt="specsy — a linter for specifications" src="assets/banner-light.svg" width="840">
+  </picture>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/specsy"><img alt="npm" src="https://img.shields.io/npm/v/specsy?color=0969da&label=npm"></a>
+  <a href="https://github.com/Zaidnaz/specsy/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Zaidnaz/specsy/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/npm/l/specsy?color=1a7f37"></a>
+  <img alt="no LLM required" src="https://img.shields.io/badge/rules-16%20deterministic-59636e">
+</p>
 
 **A linter for specifications.** It catches vague, untestable and untraceable requirements *before* an AI agent turns them into code.
 
@@ -26,6 +38,17 @@ So teams fill a beautifully structured `spec.md` with "should be fast", "handle 
 specsy is the compiler pass that was missing. It reads the specs you already have, in the format you already use, and refuses to let an unanswerable requirement reach an agent.
 
 **It is not another spec format.** It sits on top of the one you have.
+
+## How it works
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/workflow-dark.svg">
+    <img alt="Workflow: you write the spec, specsy checks it, then the agent implements it. Findings send you back to the spec instead of on to the agent." src="assets/workflow-light.svg" width="900">
+  </picture>
+</p>
+
+specsy sits between the spec you wrote and the agent that implements it. Findings come back with a `file:line` and a concrete fix, and the command exits `1` — so a spec that cannot be built correctly never reaches the agent in the first place.
 
 ## Install
 
