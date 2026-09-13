@@ -111,7 +111,11 @@ Exit codes:
 |---|---|
 | `0` | No errors. Warnings alone do **not** fail — add `--max-warnings 0` if they should |
 | `1` | One or more errors, or warnings above `--max-warnings` |
-| `2` | specsy could not run: bad config, unknown format or reporter, nothing found |
+| `2` | specsy could not run: bad config, unknown format or reporter, or **nothing was examined** |
+
+`--quiet` prints errors only. It is a display filter — warnings are still found, still counted, and still fail the run when they exceed `--max-warnings`.
+
+A run that examines **zero** documents exits `2`, never `0`. A config whose `ignore` matches every file is a CI gate that passes because it checked nothing, which is worse than one that fails.
 
 ## Supported formats
 

@@ -37,6 +37,7 @@ export const openspecAdapter: Adapter = {
   name: "openspec",
   label: "OpenSpec",
   autoDetect: true,
+  hasChanges: true,
 
   async detect(root) {
     return (await specRoot(root)) !== null;

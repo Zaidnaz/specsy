@@ -2,10 +2,21 @@ import path from "node:path";
 import pc from "picocolors";
 import type { LintResult } from "../engine/lint.js";
 
-export function formatPretty(result: LintResult, cwd: string): string {
+export interface ReportOptions {
+  /**
+   * Print errors only. A display concern: the warnings are still found, still
+   * counted, and still decide the exit code alongside --max-warnings.
+   */
+  hideWarnings?: boolean;
+}
+
+export function formatPretty(result: LintResult, cwd: string, opts: ReportOptions = {}): string {
   const out: string[] = [];
+  const shown = opts.hideWarnings
+    ? result.diagnostics.filter((d) => d.severity === "error")
+    : result.diagnostics;
   const byFile = new Map<string, typeof result.diagnostics>();
-  for (const d of result.diagnostics) {
+  for (const d of shown) {
     const list = byFile.get(d.span.file) ?? [];
     list.push(d);
     byFile.set(d.span.file, list);
@@ -27,10 +38,20 @@ export function formatPretty(result: LintResult, cwd: string): string {
   const total = errorCount + warnCount;
   if (total === 0) {
     out.push(pc.green(`✔ No problems in ${result.documentCount} document(s).`));
+  } else if (opts.hideWarnings && errorCount === 0) {
+    // Saying "no problems" here would be a lie: warnings were found, and with
+    // --max-warnings they may still fail the run.
+    out.push(
+      pc.green(`✔ No errors in ${result.documentCount} document(s).`) +
+        pc.dim(` (${warnCount} warning(s) hidden by --quiet)`),
+    );
   } else {
     const parts = [`${errorCount} error${errorCount === 1 ? "" : "s"}`, `${warnCount} warning${warnCount === 1 ? "" : "s"}`];
     const mark = errorCount > 0 ? pc.red("✖") : pc.yellow("▲");
-    out.push(`${mark} ${total} problem${total === 1 ? "" : "s"} (${parts.join(", ")}) in ${result.documentCount} document(s).`);
+    const hidden = opts.hideWarnings && warnCount > 0 ? pc.dim(` (${warnCount} hidden by --quiet)`) : "";
+    out.push(
+      `${mark} ${total} problem${total === 1 ? "" : "s"} (${parts.join(", ")}) in ${result.documentCount} document(s).${hidden}`,
+    );
   }
   return out.join("\n");
 }

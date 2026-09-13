@@ -44,7 +44,7 @@ async function loadProject(root: string, format?: string) {
 }
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "specsy", version: "0.2.2" });
+  const server = new McpServer({ name: "specsy", version: "0.2.3" });
 
   server.registerTool(
     "lint_specs",
@@ -64,7 +64,15 @@ export function createServer(): McpServer {
     },
     async ({ path: target, format, change, errors_only }) => {
       const root = target ?? process.cwd();
-      const { project } = await loadProject(root, format);
+      const { adapter, project } = await loadProject(root, format);
+
+      if (change && !adapter.hasChanges) {
+        const body =
+          `The ${adapter.label} format has no in-flight changes, so "change" cannot narrow this run. ` +
+          `Drop the change argument, or point at an OpenSpec project.`;
+        usage.record("lint_specs", body);
+        return text(body);
+      }
 
       // Only real changes are selectable: the living spec is a pseudo-change
       // whose id is a display label, and matching on it was an accident.
@@ -80,29 +88,35 @@ export function createServer(): McpServer {
 
       const { config: fileConfig } = await loadConfig(root);
       const config = resolveConfig(fileConfig);
-      if (errors_only) {
-        config.rules = { ...config.rules };
-        for (const rule of allRules) {
-          if (rule.defaultSeverity === "warn" && !fileConfig.rules?.[rule.id]) {
-            config.rules[rule.id] = "off";
-          }
-        }
-      }
 
       const result = lint(selected, config);
+      if (result.documentCount === 0) {
+        const body =
+          "Nothing was examined: every document was excluded, so this run checked nothing. " +
+          "Check the \"ignore\" setting in .specsyrc.json.";
+        usage.record("lint_specs", body);
+        return text(body);
+      }
+
+      // errors_only hides warnings from the reply but never from the counts:
+      // an agent told "no problems" when warnings exist has been misled.
+      const shown = errors_only
+        ? result.diagnostics.filter((d) => d.severity === "error")
+        : result.diagnostics;
       const lines: string[] = [];
 
       if (result.diagnostics.length === 0) {
         lines.push(`No problems in ${result.documentCount} document(s). The specs are ready to implement.`);
       } else {
-        for (const d of result.diagnostics) {
+        for (const d of shown) {
           const rel = path.relative(root, d.span.file).replace(/\\/g, "/");
           lines.push(`${rel}:${d.span.line}:${d.span.column ?? 1} ${d.severity} [${d.rule}] ${d.message}`);
           if (d.hint) lines.push(`    fix: ${d.hint}`);
         }
         lines.push("");
         lines.push(
-          `${result.errorCount} error(s), ${result.warnCount} warning(s) in ${result.documentCount} document(s).`,
+          `${result.errorCount} error(s), ${result.warnCount} warning(s) in ${result.documentCount} document(s).` +
+            (errors_only && result.warnCount > 0 ? " Warnings were found but not listed (errors_only)." : ""),
         );
         lines.push("Fix these in the spec before implementing. Call explain_rule for any rule you want detail on.");
       }

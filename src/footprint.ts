@@ -18,6 +18,8 @@ export interface DocumentFootprint {
 
 export interface ChangeFootprint {
   id: string;
+  /** The living spec is measured too, but it is not an in-flight change. */
+  kind: SpecChange["kind"];
   tokens: number;
   documents: DocumentFootprint[];
 }
@@ -68,6 +70,7 @@ export async function measure(
     const documents = await Promise.all(change.documents.map((d) => documentFootprint(d, opts)));
     changes.push({
       id: change.id,
+      kind: change.kind,
       tokens: documents.reduce((sum, d) => sum + d.tokens, 0),
       documents: documents.sort((a, b) => b.tokens - a.tokens),
     });
@@ -111,8 +114,12 @@ export function formatFootprint(fp: Footprint, cwd: string, changeOf: (c: SpecCh
     out.push("");
   }
 
+  const inFlight = fp.changes.filter((c) => c.kind === "change").length;
+  const living = fp.changes.length - inFlight;
+  const scope =
+    `${inFlight} change(s)` + (living > 0 ? ` plus the living spec` : "");
   out.push(
-    `Total ${formatTokens(fp.totalTokens)} tokens across ${fp.changes.length} change(s) — ${label}, ${fp.model} input rates.`,
+    `Total ${formatTokens(fp.totalTokens)} tokens across ${scope} — ${label}, ${fp.model} input rates.`,
   );
   if (!fp.exact) {
     out.push(`Estimate is ±15%. Use --exact with an Anthropic API key for real counts.`);

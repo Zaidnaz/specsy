@@ -12,6 +12,13 @@ export interface Adapter {
    */
   autoDetect: boolean;
   /**
+   * Whether this format has in-flight changes that a selection can name.
+   * The generic adapter presents a whole directory as one pseudo-change, so
+   * offering `--change` there would teach a concept the layout does not have
+   * and narrow nothing.
+   */
+  hasChanges: boolean;
+  /**
    * Cheap structural test: does this directory look like our format?
    * Must not read file contents beyond what is needed to decide.
    */

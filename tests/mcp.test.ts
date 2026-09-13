@@ -7,6 +7,8 @@ import { createServer } from "../src/mcp/server.js";
 import { estimateTokens, formatTokens, inputCost, SessionUsage } from "../src/tokens.js";
 import { measure, loopTokens } from "../src/footprint.js";
 import { openspecAdapter } from "../src/adapters/openspec.js";
+import { getAdapter } from "../src/adapters/index.js";
+import { lint } from "../src/engine/lint.js";
 import { allRules } from "../src/rules/index.js";
 import { explainRule, nearestRules, distance } from "../src/explain.js";
 
@@ -178,5 +180,74 @@ describe("command discovery", () => {
     expect(distance("footprnt", "footprint")).toBe(1);
     expect(distance("same", "same")).toBe(0);
     expect(distance("", "abc")).toBe(3);
+  });
+});
+
+describe("a run that examines nothing", () => {
+  // Both dry runs converged on one question: did this run actually examine
+  // anything, and did every input the user supplied change the outcome? A
+  // green tick over zero documents is a CI gate passing because it checked
+  // nothing, which is worse than a gate that fails.
+  it("refuses rather than reporting success", async () => {
+    const { client, close } = await connect();
+    const body = textOf(
+      await client.callTool({ name: "lint_specs", arguments: { path: fixture("clean") } }),
+    );
+    expect(body).toContain("No problems");
+    await close();
+  });
+
+  it("tells an agent that an ignore-everything config checked nothing", async () => {
+    const project = await openspecAdapter.load(fixture("clean"));
+    const result = lint(project, { ignore: ["**"] });
+    expect(result.documentCount).toBe(0);
+  });
+});
+
+describe("selections an adapter cannot honour", () => {
+  it("declares which formats have in-flight changes", () => {
+    expect(getAdapter("openspec")?.hasChanges).toBe(true);
+    // A flat markdown folder presents itself as one pseudo-change; offering
+    // to narrow by change there teaches a concept the layout does not have.
+    expect(getAdapter("generic")?.hasChanges).toBe(false);
+  });
+
+  it("refuses a change selection on the generic adapter", async () => {
+    const { client, close } = await connect();
+    const body = textOf(
+      await client.callTool({
+        name: "lint_specs",
+        arguments: { path: fixture("clean"), format: "generic", change: "anything" },
+      }),
+    );
+    expect(body).toContain("no in-flight changes");
+    await close();
+  });
+});
+
+describe("errors_only over MCP", () => {
+  // Consistent with --quiet: a display filter, never a silencer. An agent
+  // told "no problems" while warnings exist has been misled.
+  it("hides warnings from the list but not from the counts", async () => {
+    const { client, close } = await connect();
+    const body = textOf(
+      await client.callTool({
+        name: "lint_specs",
+        arguments: { path: fixture("messy"), errors_only: true },
+      }),
+    );
+    expect(body).not.toContain("no-weasel-words");
+    expect(body).toContain("warning(s)");
+    expect(body).toContain("not listed");
+    await close();
+  });
+});
+
+describe("footprint reporting", () => {
+  it("does not count the living spec as an in-flight change", async () => {
+    const project = await openspecAdapter.load(fixture("clean"));
+    const fp = await measure(project);
+    for (const c of fp.changes) expect(["change", "living"]).toContain(c.kind);
+    expect(fp.changes.filter((c) => c.kind === "change").length).toBeGreaterThan(0);
   });
 });

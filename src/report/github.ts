@@ -1,9 +1,13 @@
 import path from "node:path";
 import type { LintResult } from "../engine/lint.js";
+import type { ReportOptions } from "./pretty.js";
 
 /** GitHub Actions workflow-command annotations, rendered inline on the PR diff. */
-export function formatGithub(result: LintResult, cwd: string): string {
-  return result.diagnostics
+export function formatGithub(result: LintResult, cwd: string, opts: ReportOptions = {}): string {
+  const shown = opts.hideWarnings
+    ? result.diagnostics.filter((d) => d.severity === "error")
+    : result.diagnostics;
+  return shown
     .map((d) => {
       const file = path.relative(cwd, d.span.file).replace(/\\/g, "/");
       const level = d.severity === "error" ? "error" : "warning";

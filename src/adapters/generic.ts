@@ -17,6 +17,8 @@ export const genericAdapter: Adapter = {
   // Opt-in only. "Any directory containing markdown" describes a home
   // directory as readily as a spec folder.
   autoDetect: false,
+  // A flat markdown folder has no in-flight changes to select between.
+  hasChanges: false,
 
   async detect(root) {
     // Only needs to know whether *any* spec-ish file exists, so it stops at

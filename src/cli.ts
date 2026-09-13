@@ -36,7 +36,7 @@ const COMMANDS: { name: string; blurb: string; when: string }[] = [
 program
   .name("specsy")
   .description("A linter for specifications. Catches vague, untestable and untraceable requirements before an agent turns them into code.")
-  .version("0.2.2")
+  .version("0.2.3")
   .showSuggestionAfterError()
   .addHelpText(
     "after",
@@ -64,7 +64,7 @@ program
   .option("-f, --format <name>", `adapter to use (${adapters.map((a) => a.name).join(", ")}, or auto)`)
   .option("-r, --reporter <name>", "output format: pretty, json, github", "pretty")
   .option("--max-warnings <n>", "exit non-zero when warnings exceed this count", (v) => Number.parseInt(v, 10))
-  .option("--quiet", "report errors only", false)
+  .option("--quiet", "print errors only; warnings are still counted for the exit code", false)
   .action(async (target: string, opts) => {
     const cwd = process.cwd();
 
@@ -110,13 +110,6 @@ program
       return;
     }
     const config = resolveConfig(fileConfig);
-    if (opts.quiet) {
-      config.rules = { ...config.rules };
-      for (const rule of allRules) {
-        if (rule.defaultSeverity === "warn" && !fileConfig.rules?.[rule.id]) config.rules[rule.id] = "off";
-      }
-    }
-
     const requested = opts.format ?? config.format ?? "auto";
     const adapter = requested === "auto" ? await detectAdapter(target) : getAdapter(requested);
 
@@ -149,12 +142,30 @@ program
     }
 
     const result = lint(project, config);
+
+    // The one question worth asking once, in one place: did this run actually
+    // examine anything? Two separate defects were instances of it -- an
+    // `ignore` that matched every file, and (once scoping lands) a selection
+    // that matches no change. A gate that passes because it checked nothing
+    // is worse than a gate that fails.
+    if (result.documentCount === 0) {
+      console.error(pc.red("Nothing was examined: every document was excluded."));
+      console.error("");
+      if ((config.ignore ?? []).length > 0) {
+        console.error(`  "ignore" in your config matched every file: ${JSON.stringify(config.ignore)}`);
+      }
+      console.error(pc.dim("Exiting 2 rather than reporting success, so a CI gate cannot pass by checking nothing."));
+      process.exitCode = 2;
+      return;
+    }
+
+    const reportOpts = { hideWarnings: Boolean(opts.quiet) };
     const reporter = opts.reporter as string;
-    if (reporter === "json") console.log(formatJson(result, cwd));
-    else if (reporter === "github") console.log(formatGithub(result, cwd));
+    if (reporter === "json") console.log(formatJson(result, cwd, reportOpts));
+    else if (reporter === "github") console.log(formatGithub(result, cwd, reportOpts));
     else {
       if (configPath) console.log(pc.dim(`config: ${configPath}`));
-      console.log(formatPretty(result, cwd));
+      console.log(formatPretty(result, cwd, reportOpts));
     }
 
     const overWarnings = typeof opts.maxWarnings === "number" && result.warnCount > opts.maxWarnings;
