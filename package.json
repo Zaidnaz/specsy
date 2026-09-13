@@ -1,11 +1,11 @@
 {
-  "name": "spec-lint",
+  "name": "specsy",
   "version": "0.1.0",
   "description": "A linter for specifications. Catches vague, untestable, and untraceable requirements before an AI agent turns them into code.",
   "keywords": ["spec-driven-development", "sdd", "linter", "openspec", "spec-kit", "ai-agents", "requirements"],
   "license": "MIT",
   "type": "module",
-  "bin": { "spec-lint": "./dist/cli.js" },
+  "bin": { "specsy": "./dist/cli.js" },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },

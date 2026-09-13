@@ -13,7 +13,7 @@ import { formatGithub } from "./report/github.js";
 const program = new Command();
 
 program
-  .name("spec-lint")
+  .name("specsy")
   .description("A linter for specifications. Catches vague, untestable and untraceable requirements before an agent turns them into code.")
   .version("0.1.0");
 
@@ -78,7 +78,7 @@ program
       const scope = rule.appliesTo ? pc.dim(` [${rule.appliesTo.join(", ")}]`) : "";
       console.log(`${pc.bold(rule.id.padEnd(width))}  ${sev}  ${rule.description}${scope}`);
     }
-    console.log(pc.dim(`\n${allRules.length} rules. Override any of them in .spec-lintrc.json under "rules".`));
+    console.log(pc.dim(`\n${allRules.length} rules. Override any of them in .specsyrc.json under "rules".`));
   });
 
 program.parseAsync(process.argv).catch((err: unknown) => {

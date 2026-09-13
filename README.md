@@ -1,4 +1,4 @@
-# spec-lint
+# specsy
 
 **A linter for specifications.** It catches vague, untestable and untraceable requirements *before* an AI agent turns them into code.
 
@@ -23,34 +23,34 @@ Spec-driven development tools — [OpenSpec](https://github.com/Fission-AI/OpenS
 
 So teams fill a beautifully structured `spec.md` with "should be fast", "handle errors gracefully", "user-friendly" — and the agent, which cannot ask a follow-up question at 2am, invents an answer. The spec was never the bottleneck. The *quality* of the spec was.
 
-spec-lint is the compiler pass that was missing. It reads the specs you already have, in the format you already use, and refuses to let an unanswerable requirement reach an agent.
+specsy is the compiler pass that was missing. It reads the specs you already have, in the format you already use, and refuses to let an unanswerable requirement reach an agent.
 
 **It is not another spec format.** It sits on top of the one you have.
 
 ## Install
 
 ```bash
-npx spec-lint
+npx specsy
 ```
 
 Or add it to a project:
 
 ```bash
-npm install -D spec-lint
-pnpm add -D spec-lint
+npm install -D specsy
+pnpm add -D specsy
 ```
 
 ## Usage
 
 ```bash
-spec-lint                      # auto-detect the format, lint everything
-spec-lint openspec/            # point at a directory
-spec-lint --format openspec    # force an adapter
-spec-lint --reporter json      # machine-readable output
-spec-lint --reporter github    # inline annotations on a PR diff
-spec-lint --quiet              # errors only
-spec-lint --max-warnings 0     # treat warnings as failures too
-spec-lint rules                # list every rule
+specsy                      # auto-detect the format, lint everything
+specsy openspec/            # point at a directory
+specsy --format openspec    # force an adapter
+specsy --reporter json      # machine-readable output
+specsy --reporter github    # inline annotations on a PR diff
+specsy --quiet              # errors only
+specsy --max-warnings 0     # treat warnings as failures too
+specsy rules                # list every rule
 ```
 
 Exit codes: `0` clean, `1` findings, `2` the linter itself could not run.
@@ -91,7 +91,7 @@ Code fences are never linted, so example snippets inside a spec stay untouched.
 
 ## Configuration
 
-Drop a `.spec-lintrc.json` anywhere at or above the directory you lint:
+Drop a `.specsyrc.json` anywhere at or above the directory you lint:
 
 ```json
 {
@@ -109,7 +109,7 @@ Every rule takes `"error"`, `"warn"` or `"off"`. `weaselWords` is merged with th
 ## In CI
 
 ```yaml
-- run: npx spec-lint --reporter github --max-warnings 0
+- run: npx specsy --reporter github --max-warnings 0
 ```
 
 The `github` reporter emits workflow annotations, so findings land inline on the pull request diff.
@@ -117,13 +117,13 @@ The `github` reporter emits workflow annotations, so findings land inline on the
 As a pre-commit hook:
 
 ```bash
-npx spec-lint --quiet || exit 1
+npx specsy --quiet || exit 1
 ```
 
 ## Programmatic use
 
 ```ts
-import { detectAdapter, lint, formatJson } from "spec-lint";
+import { detectAdapter, lint, formatJson } from "specsy";
 
 const adapter = await detectAdapter("./openspec");
 const project = await adapter.load("./openspec");

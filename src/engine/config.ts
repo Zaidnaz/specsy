@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { Config } from "./types.js";
 
-const FILENAMES = [".spec-lintrc.json", "spec-lint.config.json"];
+const FILENAMES = [".specsyrc.json", "specsy.config.json"];
 
 /** Load config from the nearest known filename, walking up to the repo root. */
 export async function loadConfig(cwd: string): Promise<{ config: Config; path?: string }> {

@@ -28,7 +28,7 @@ export interface RuleContext {
  */
 export interface Rule {
   id: string;
-  /** One line, shown in `spec-lint rules`. */
+  /** One line, shown in `specsy rules`. */
   description: string;
   /** Severity when the user has not configured one. */
   defaultSeverity: Exclude<Severity, "off">;

@@ -7,7 +7,7 @@ import { loadDocument } from "./extract.js";
 /**
  * Last-resort adapter: treat a directory of markdown as one change.
  *
- * It exists so someone can point spec-lint at any spec folder and get value
+ * It exists so someone can point specsy at any spec folder and get value
  * on the first run, without adopting a format first. Traceability rules are
  * weaker here because there is no declared structure to check against.
  */
