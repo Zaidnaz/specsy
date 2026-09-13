@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "specsy": {
+      "command": "npx",
+      "args": ["-y", "specsy", "mcp"]
+    }
+  }
+}

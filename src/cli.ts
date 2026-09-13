@@ -10,13 +10,14 @@ import { allRules } from "./rules/index.js";
 import { formatPretty } from "./report/pretty.js";
 import { formatJson } from "./report/json.js";
 import { formatGithub } from "./report/github.js";
+import { measure, formatFootprint } from "./footprint.js";
 
 const program = new Command();
 
 program
   .name("specsy")
   .description("A linter for specifications. Catches vague, untestable and untraceable requirements before an agent turns them into code.")
-  .version("0.1.4");
+  .version("0.2.0");
 
 program
   .argument("[path]", "directory holding the specs", ".")
@@ -77,6 +78,37 @@ program
 
     const overWarnings = typeof opts.maxWarnings === "number" && result.warnCount > opts.maxWarnings;
     if (result.errorCount > 0 || overWarnings) process.exitCode = 1;
+  });
+
+program
+  .command("mcp")
+  .description("run specsy as an MCP server over stdio, so agents can lint their own specs")
+  .action(async () => {
+    // stdout is the MCP transport: anything written there that is not a
+    // protocol frame corrupts the stream. Diagnostics go to stderr only.
+    const { runStdioServer } = await import("./mcp/server.js");
+    await runStdioServer();
+  });
+
+program
+  .command("footprint")
+  .description("report how many tokens each change occupies, and what that costs across a loop")
+  .argument("[path]", "directory holding the specs", ".")
+  .option("-f, --format <name>", "adapter to use")
+  .option("--turns <n>", "agent turns to project the loop cost over", (v) => Number.parseInt(v, 10), 8)
+  .option("--exact", "use the Anthropic count_tokens endpoint instead of a local estimate", false)
+  .option("--model <id>", "model to price against", "claude-opus-5")
+  .action(async (target: string, opts) => {
+    const requested = opts.format ?? "auto";
+    const adapter = requested === "auto" ? await detectAdapter(target) : getAdapter(requested);
+    if (!adapter) {
+      console.error(pc.red(`No spec format detected in "${path.resolve(target)}".`));
+      process.exitCode = 2;
+      return;
+    }
+    const project = await adapter.load(target);
+    const fp = await measure(project, { exact: opts.exact, model: opts.model, turns: opts.turns });
+    console.log(formatFootprint(fp, process.cwd()));
   });
 
 program

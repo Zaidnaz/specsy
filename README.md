@@ -79,6 +79,8 @@ specsy --reporter github    # inline annotations on a PR diff
 specsy --quiet              # errors only
 specsy --max-warnings 0     # treat warnings as failures too
 specsy rules                # list every rule
+specsy footprint            # token cost of each change
+specsy mcp                  # run as an MCP server for agents
 ```
 
 Exit codes: `0` clean, `1` findings, `2` the linter itself could not run.
@@ -124,6 +126,54 @@ Code fences are never linted, so example snippets inside a spec stay untouched.
 Standards references are not requirement ids. `ISO-4217`, `ISO-8601`, `RFC-3339` and `SHA-256` match the shape of an id but are excluded, and a requirement takes its id only from the start of its heading (`### Requirement: REQ-014 Account creation`) — a mention in prose never christens one.
 
 **Proposals are linted as prose.** A proposal rarely contains formal `MUST` requirements, so the clarity rules read every line of it — except the motivation sections (`Why`, `Background`, `Context`, `Problem`, `Rationale`). "Search feels slow" there is a problem statement, not an unmeasurable requirement, and is left alone.
+
+## Use it from an agent (MCP)
+
+Without this, the loop has a human in it: the agent writes a spec, you run specsy, you paste the output back. With it, the agent lints its own spec and fixes it **before writing any code**.
+
+```bash
+claude mcp add specsy -- npx -y specsy mcp
+```
+
+Or commit a `.mcp.json` at your repo root so the whole team gets it:
+
+```json
+{
+  "mcpServers": {
+    "specsy": { "command": "npx", "args": ["-y", "specsy", "mcp"] }
+  }
+}
+```
+
+Cursor, Windsurf and Zed take the same `command`/`args` pair in their own MCP config. The server speaks stdio and needs no API key.
+
+| Tool | What the agent uses it for |
+|---|---|
+| `lint_specs` | Check specs before implementing. Returns each finding with `file:line` and a concrete fix. |
+| `explain_rule` | Understand a finding, with a failing and a passing example. |
+| `list_rules` | Learn the bar before writing a spec. |
+| `spec_footprint` | See what a change costs in context tokens. |
+| `specsy_usage` | See what specsy itself has added to the conversation. |
+
+## Context cost
+
+A spec is not read once — an agent re-reads it on every turn, so its size is a **recurring** cost:
+
+```bash
+specsy footprint
+```
+
+```
+add-core-ledger  11k tokens
+    2.8k  design        openspec/changes/add-core-ledger/design.md
+    2.1k  spec          openspec/changes/add-core-ledger/specs/ledger/transactions/spec.md
+    ...
+          re-read over 8 agent turns: ~86k tokens, ~$0.43
+```
+
+Counts are estimated locally (±15%), with no network call and no API key — the same promise as the rules. `--exact` uses Anthropic's `count_tokens` endpoint for real, model-specific numbers when a credential is available.
+
+**specsy cannot see your agent's total token usage** — that belongs to Claude Code or Cursor and its API account. What it measures is the specs themselves, and its own contribution to the conversation. Those are the parts of the bill it is honestly able to see.
 
 ## Configuration
 

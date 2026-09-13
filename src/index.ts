@@ -8,3 +8,5 @@ export { adapters, getAdapter, detectAdapter, type Adapter } from "./adapters/in
 export { formatPretty } from "./report/pretty.js";
 export { formatJson } from "./report/json.js";
 export { formatGithub } from "./report/github.js";
+export * from "./tokens.js";
+export * from "./footprint.js";
