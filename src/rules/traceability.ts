@@ -36,9 +36,13 @@ export const tasksReferenceRequirements: Rule = {
   appliesTo: ["tasks"],
   check(doc, ctx) {
     const known = new Set(changeRequirements(ctx.change).flatMap((r) => (r.id ? [r.id] : [])));
-    // Without any ids in the change there is nothing to point at; the
-    // require-requirement-ids rule reports that root cause instead.
+    // Nothing to point at.
     if (known.size === 0) return;
+    // Citing requirements from tasks is a discipline a team opts into, not
+    // something any spec format mandates -- OpenSpec's tasks.md never does it.
+    // Stay silent unless some task already cites one, in which case the
+    // uncited tasks are a real inconsistency.
+    if (!changeTasks(ctx.change).some((t) => t.refs.length > 0)) return;
     for (const task of doc.tasks) {
       if (task.refs.length > 0) continue;
       ctx.report({
@@ -80,6 +84,10 @@ export const requirementsHaveTasks: Rule = {
     const tasks = changeTasks(ctx.change);
     // Only meaningful once a tasks document exists in this change.
     if (tasks.length === 0) return;
+    // The mirror of tasks-reference-requirements: if no task cites anything,
+    // the project has not adopted the convention and every requirement would
+    // look orphaned. Coverage is only measurable once citations exist.
+    if (!tasks.some((t) => t.refs.length > 0)) return;
     const covered = new Set(tasks.flatMap((t) => t.refs));
     for (const req of doc.requirements) {
       if (!req.id || covered.has(req.id)) continue;

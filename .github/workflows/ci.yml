@@ -34,5 +34,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      # The clean fixture must stay clean: it is the false-positive canary.
+      # These must stay silent: they are the false-positive canaries. The
+      # second is a conforming OpenSpec change that uses no requirement ids.
       - run: node dist/cli.js tests/fixtures/clean --reporter github --max-warnings 0
+      - run: node dist/cli.js tests/fixtures/openspec-conventional --reporter github --max-warnings 0

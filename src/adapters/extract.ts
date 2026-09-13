@@ -50,8 +50,42 @@ export function kindFor(file: string): DocKind {
   return "unknown";
 }
 
+/**
+ * Prefixes that look exactly like a requirement id but never are. Specs are
+ * full of standards references -- ISO-4217, ISO-8601, RFC-3339, SHA-256 --
+ * and treating one as an id invents a requirement that does not exist.
+ */
+const STANDARD_PREFIX = new Set([
+  "ISO", "IEC", "IEEE", "ANSI", "RFC", "BCP", "STD", "EN", "DIN", "JIS",
+  "UTF", "UCS", "SHA", "MD", "AES", "DES", "RSA", "HMAC",
+  "HTTP", "IPV", "TCP", "UDP", "TLS", "SSL",
+  "ES", "ECMA", "PEP", "JSR", "CVE", "CWE", "NIST", "FIPS", "PCI", "SOC",
+  "ITU", "ETSI", "ISBN", "ISSN", "UTC", "GMT", "AWS", "GCP",
+]);
+
+function isStandardsReference(id: string): boolean {
+  return STANDARD_PREFIX.has(id.split("-")[0] ?? "");
+}
+
+/**
+ * Read an id out of free text -- for citations, which legitimately appear
+ * mid-sentence. Standards references are excluded.
+ */
 export function extractId(text: string): string | undefined {
-  return EXPLICIT_ID.exec(text)?.[1];
+  const id = EXPLICIT_ID.exec(text)?.[1];
+  return id && !isStandardsReference(id) ? id : undefined;
+}
+
+/**
+ * Read a requirement's own id, which must open the heading:
+ * `### Requirement: REQ-014 Account creation`. Position is what separates a
+ * declaration from a mention -- "an ISO-4217 currency code" names a standard,
+ * it does not christen the requirement.
+ */
+export function extractLeadingId(text: string): string | undefined {
+  const m = EXPLICIT_ID.exec(text);
+  if (!m || m.index !== 0 || !m[1] || isStandardsReference(m[1])) return undefined;
+  return m[1];
 }
 
 /**
@@ -83,7 +117,7 @@ export function extractRequirements(raw: string, file: string, kind: DocKind): R
       criteria.push({ text: item.text, span: { ...sec.span, line: sec.bodyStartLine + item.span.line - 1 } });
     }
 
-    const id = extractId(name) ?? extractId(sec.body);
+    const id = extractLeadingId(name);
     out.push({
       ...(id ? { id } : {}),
       text: `${name}\n${sec.body}`.trim(),
@@ -125,12 +159,13 @@ export function extractTasks(raw: string, file: string): Task[] {
   for (const item of parseListItems(raw, file)) {
     if (item.checked === undefined) continue;
     const numeric = NUMERIC_ID.exec(item.text)?.[1];
-    const refs = [...item.text.matchAll(global)].map((m) => m[1]!);
+    const refs = [...item.text.matchAll(global)]
+      .map((m) => m[1]!)
+      .filter((r) => !isStandardsReference(r));
     // An id-shaped token is the task's own id only when it opens the item
     // (`TASK-3: do the thing`). Anywhere else it is a reference to a
     // requirement, which is the whole point of the traceability rules.
-    const leading = EXPLICIT_ID.exec(item.text);
-    const ownId = leading?.index === 0 ? leading[1] : undefined;
+    const ownId = extractLeadingId(item.text);
     if (ownId) refs.shift();
     const id = numeric ?? ownId;
     out.push({

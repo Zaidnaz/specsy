@@ -1,4 +1,5 @@
 import type { Rule } from "../engine/types.js";
+import { changeRequirements } from "../model.js";
 import { findSection } from "../markdown.js";
 
 const NON_GOALS = [/non[- ]?goals?/i, /out[- ]of[- ]scope/i, /not (?:doing|included|in scope)/i, /^exclusions?/i];
@@ -24,6 +25,11 @@ export const requireRequirementIds: Rule = {
   defaultSeverity: "warn",
   appliesTo: ["spec"],
   check(doc, ctx) {
+    // OpenSpec and Spec Kit both identify a requirement by its heading, not by
+    // an id, so demanding ids unconditionally flags every conforming spec.
+    // Fire only once the project has clearly adopted the convention: some
+    // requirement already carries an id and these ones are inconsistent.
+    if (!changeRequirements(ctx.change).some((r) => r.id)) return;
     for (const req of doc.requirements) {
       if (req.id) continue;
       ctx.report({

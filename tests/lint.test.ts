@@ -169,3 +169,50 @@ describe("adapter auto-detection", () => {
     expect(getAdapter("generic")).toBeDefined();
   });
 });
+
+describe("a conforming OpenSpec change that uses no ids", () => {
+  // The canary for the worst class of defect this linter can have: complaining
+  // that a correct spec is wrong. A real OpenSpec project produced 45 findings,
+  // 40 of them false, before these guards existed.
+  it("produces no findings at all", async () => {
+    const result = await run("openspec-conventional");
+    expect(result.diagnostics.map((d) => `${d.rule}: ${d.message}`)).toEqual([]);
+  });
+
+  // Regression: `[A-Z][A-Z0-9]{1,4}-\d+` matched ISO-4217 and ISO-8601 in
+  // prose, inventing requirement ids and reporting a duplicate-id error.
+  it("does not mistake a standards reference for a requirement id", async () => {
+    const project = await openspecAdapter.load(fixture("openspec-conventional"));
+    const ids = project.changes
+      .flatMap((c) => c.documents)
+      .flatMap((d) => d.requirements)
+      .map((r) => r.id);
+    expect(ids).toEqual([undefined, undefined]);
+  });
+
+  it("stays silent about ids when the format does not use them", async () => {
+    expect(fired(await run("openspec-conventional"))).not.toContain("require-requirement-ids");
+  });
+
+  it("stays silent about task citations when no task cites anything", async () => {
+    const rules = fired(await run("openspec-conventional"));
+    expect(rules).not.toContain("tasks-reference-requirements");
+    expect(rules).not.toContain("requirements-have-tasks");
+  });
+});
+
+describe("requirement id extraction", () => {
+  it("takes an id only when it opens the heading", async () => {
+    const project = await openspecAdapter.load(fixture("clean"));
+    const ids = project.changes
+      .flatMap((c) => c.documents)
+      .flatMap((d) => d.requirements)
+      .flatMap((r) => (r.id ? [r.id] : []));
+    expect(ids).toEqual(["EXP-1", "EXP-2"]);
+  });
+
+  // Once a project adopts ids, the rules that depend on them switch back on.
+  it("still flags an inconsistent spec once ids are in use", async () => {
+    expect(fired(await run("messy"))).toContain("require-requirement-ids");
+  });
+});

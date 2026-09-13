@@ -109,13 +109,17 @@ Spec Kit and Kiro adapters are the next ones planned. An adapter only has to des
 | `require-sections` | warn | `proposal`, `design` | Documents missing the sections their kind expects. |
 | `no-implementation-in-requirements` | warn | `spec` | Requirements naming a library instead of a behaviour. |
 | `unique-requirement-ids` | error | all | Two requirements sharing an id. |
-| `tasks-reference-requirements` | warn | `tasks` | Tasks not linked to any requirement. |
+| `tasks-reference-requirements` | warn | `tasks` | Tasks not linked to any requirement. †|
 | `no-dangling-references` | error | `tasks` | Tasks citing a requirement id that does not exist. |
-| `requirements-have-tasks` | warn | `spec` | Requirements no task implements. |
+| `requirements-have-tasks` | warn | `spec` | Requirements no task implements. †|
 | `require-non-goals` | warn | `proposal` | Proposals that never say what they are *not* doing. |
-| `require-requirement-ids` | warn | `spec` | Requirements with no stable id to cite. |
+| `require-requirement-ids` | warn | `spec` | Requirements with no stable id to cite. †|
+
+† **These three rules switch themselves on.** Requirement ids and task citations are disciplines a team opts into — no spec format mandates them, and OpenSpec's `tasks.md` never cites requirements. Demanding them unconditionally would flag every line of a perfectly good spec, so each rule stays silent until the change already uses the convention somewhere. Adopt ids on one requirement and the rest of the spec is held to it.
 
 Code fences are never linted, so example snippets inside a spec stay untouched.
+
+Standards references are not requirement ids. `ISO-4217`, `ISO-8601`, `RFC-3339` and `SHA-256` match the shape of an id but are excluded, and a requirement takes its id only from the start of its heading (`### Requirement: REQ-014 Account creation`) — a mention in prose never christens one.
 
 **Proposals are linted as prose.** A proposal rarely contains formal `MUST` requirements, so the clarity rules read every line of it — except the motivation sections (`Why`, `Background`, `Context`, `Problem`, `Rationale`). "Search feels slow" there is a problem statement, not an unmeasurable requirement, and is left alone.
 
