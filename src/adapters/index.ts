@@ -11,6 +11,7 @@ export function getAdapter(name: string): Adapter | undefined {
 
 export async function detectAdapter(root: string): Promise<Adapter | undefined> {
   for (const adapter of adapters) {
+    if (!adapter.autoDetect) continue;
     if (await adapter.detect(root)) return adapter;
   }
   return undefined;

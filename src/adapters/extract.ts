@@ -16,6 +16,30 @@ const SCENARIO_HEADING = /^Scenario:\s*(.+)$/i;
 /** RFC 2119 normative keywords, used by the lenient fallback. */
 export const NORMATIVE = /\b(MUST NOT|MUST|SHALL NOT|SHALL|SHOULD NOT|SHOULD|MAY)\b/;
 
+/**
+ * Directories never worth scanning for specs. Keeping .* out also avoids the
+ * junctions and permission traps that litter a Windows home directory.
+ */
+export const SCAN_IGNORE = [
+  "**/node_modules/**",
+  "**/.*/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/out/**",
+  "**/vendor/**",
+  "**/target/**",
+];
+
+/**
+ * Options every glob in every adapter shares. `suppressErrors` matters most:
+ * without it a single unreadable directory anywhere beneath the scan root
+ * aborts the whole run with a raw EPERM.
+ */
+export const SCAN_OPTS = {
+  suppressErrors: true,
+  followSymbolicLinks: false,
+} as const;
+
 export function kindFor(file: string): DocKind {
   const base = path.basename(file).toLowerCase();
   if (base === "proposal.md") return "proposal";

@@ -1,5 +1,5 @@
-import type { Requirement, Span } from "../model.js";
-import { stripNoise } from "../markdown.js";
+import type { Requirement, SpecDocument, Span } from "../model.js";
+import { readLines, stripNoise } from "../markdown.js";
 
 /**
  * Walk a requirement line by line, yielding noise-stripped text and a span
@@ -33,4 +33,51 @@ export function countMatches(text: string, pattern: RegExp): number {
 export function wordListPattern(words: string[]): RegExp {
   const escaped = words.map((w) => w.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).filter(Boolean);
   return new RegExp(`\\b(${escaped.join("|")})\\b`, "gi");
+}
+
+/**
+ * Sections that explain why the change is wanted rather than what will be
+ * built. Vague language is legitimate here: "search feels slow" is a problem
+ * statement, not an unmeasurable requirement.
+ */
+const MOTIVATION = /^(why|motivation|background|context|problem|rationale|history)\b/i;
+
+/**
+ * A span of text a clarity rule should examine, together with its lines.
+ *
+ * In a spec the unit is a requirement. In a proposal there are usually no
+ * formal requirements at all, so every prose line outside the motivation
+ * sections becomes its own unit -- otherwise a proposal written without
+ * MUST/SHALL is silently exempt from the rules that matter most.
+ */
+export interface ClarityUnit {
+  text: string;
+  span: Span;
+  lines: { text: string; span: Span }[];
+}
+
+export function clarityUnits(doc: SpecDocument): ClarityUnit[] {
+  if (doc.kind !== "proposal") {
+    return doc.requirements.map((req) => ({
+      text: req.text,
+      span: req.span,
+      lines: [...requirementLines(req)],
+    }));
+  }
+
+  const units: ClarityUnit[] = [];
+  for (const sec of doc.sections) {
+    if (MOTIVATION.test(sec.title)) continue;
+    for (const line of readLines(sec.body)) {
+      if (line.inCode) continue;
+      const text = stripNoise(line.text)
+        .replace(/^\s*[-*+]\s+/, "")
+        .replace(/^\s*\d+[.)]\s+/, "")
+        .trim();
+      if (!text) continue;
+      const span: Span = { file: doc.path, line: sec.bodyStartLine + line.number - 1, text: line.text };
+      units.push({ text, span, lines: [{ text, span }] });
+    }
+  }
+  return units;
 }

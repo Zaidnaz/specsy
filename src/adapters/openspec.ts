@@ -3,7 +3,7 @@ import path from "node:path";
 import fg from "fast-glob";
 import type { Adapter } from "./types.js";
 import type { SpecChange, SpecProject } from "../model.js";
-import { loadDocument } from "./extract.js";
+import { SCAN_OPTS, loadDocument } from "./extract.js";
 
 /**
  * OpenSpec layout:
@@ -36,6 +36,7 @@ async function specRoot(root: string): Promise<string | null> {
 export const openspecAdapter: Adapter = {
   name: "openspec",
   label: "OpenSpec",
+  autoDetect: true,
 
   async detect(root) {
     return (await specRoot(root)) !== null;
@@ -49,11 +50,12 @@ export const openspecAdapter: Adapter = {
       cwd: path.join(base, "changes"),
       onlyDirectories: true,
       absolute: true,
+      ...SCAN_OPTS,
     });
 
     for (const dir of changeDirs.sort()) {
       if (path.basename(dir) === "archive") continue; // already folded into specs/
-      const files = await fg("**/*.md", { cwd: dir, absolute: true });
+      const files = await fg("**/*.md", { cwd: dir, absolute: true, ...SCAN_OPTS });
       if (files.length === 0) continue;
       changes.push({
         id: path.basename(dir),
@@ -63,7 +65,7 @@ export const openspecAdapter: Adapter = {
     }
 
     // The living spec is its own pseudo-change so rules can inspect it too.
-    const specFiles = await fg("specs/**/*.md", { cwd: base, absolute: true });
+    const specFiles = await fg("specs/**/*.md", { cwd: base, absolute: true, ...SCAN_OPTS });
     if (specFiles.length > 0) {
       changes.push({
         id: "(living spec)",

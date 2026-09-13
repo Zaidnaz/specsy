@@ -52,16 +52,21 @@ specsy sits between the spec you wrote and the agent that implements it. Finding
 
 ## Install
 
+specsy lints the directory you run it **from**, so run it inside a project:
+
 ```bash
+cd my-project
 npx specsy
 ```
 
-Or add it to a project:
+Or add it as a dev dependency:
 
 ```bash
-npm install -D specsy
-pnpm add -D specsy
+npm install -D specsy     # or: pnpm add -D specsy
+npx specsy
 ```
+
+> A local install is not on your `PATH` — typing a bare `specsy` will fail with *"not recognized as an internal or external command"*. Use `npx specsy`, or add `"lint:spec": "specsy"` to your `package.json` scripts, where `node_modules/.bin` is already on the path. Install globally (`npm i -g specsy`) only if you want the bare command everywhere.
 
 ## Usage
 
@@ -83,7 +88,7 @@ Exit codes: `0` clean, `1` findings, `2` the linter itself could not run.
 | Adapter | Reads |
 |---|---|
 | `openspec` | `openspec/changes/<id>/{proposal,design,tasks}.md` plus delta specs and the living `specs/` tree |
-| `generic` | any directory of markdown — a fallback so you can try it without adopting a format first |
+| `generic` | any directory of markdown — **opt-in**, via `--format generic`. Never auto-detected: "a folder containing markdown" describes a home directory as readily as a spec folder |
 
 Spec Kit and Kiro adapters are the next ones planned. An adapter only has to describe a directory layout; all parsing and every rule is shared. See [`src/adapters/`](src/adapters/).
 
@@ -97,7 +102,7 @@ Spec Kit and Kiro adapters are the next ones planned. An adapter only has to des
 | `quantify-performance` | error | `spec`, `proposal` | Performance claims with no number and unit. |
 | `use-normative-keywords` | warn | `spec` | Soft modals ("will", "needs to") instead of MUST / SHOULD / MAY. |
 | `one-requirement-per-statement` | warn | `spec` | Sentences bundling several obligations into one. |
-| `no-ambiguous-pronoun` | warn | `spec`, `proposal` | Requirements opening with a pronoun that has no antecedent. |
+| `no-ambiguous-pronoun` | warn | `spec` | Requirements opening with a pronoun that has no antecedent. |
 | `require-acceptance-criteria` | error | `spec` | Requirements with no scenario to verify them. |
 | `no-placeholders` | error | all | TODO/TBD markers and unfilled template slots. |
 | `no-empty-sections` | warn | all | Headings with nothing beneath them. |
@@ -111,6 +116,8 @@ Spec Kit and Kiro adapters are the next ones planned. An adapter only has to des
 | `require-requirement-ids` | warn | `spec` | Requirements with no stable id to cite. |
 
 Code fences are never linted, so example snippets inside a spec stay untouched.
+
+**Proposals are linted as prose.** A proposal rarely contains formal `MUST` requirements, so the clarity rules read every line of it — except the motivation sections (`Why`, `Background`, `Context`, `Problem`, `Rationale`). "Search feels slow" there is a problem statement, not an unmeasurable requirement, and is left alone.
 
 ## Configuration
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import path from "node:path";
 import process from "node:process";
 import { Command } from "commander";
 import pc from "picocolors";
@@ -15,7 +16,7 @@ const program = new Command();
 program
   .name("specsy")
   .description("A linter for specifications. Catches vague, untestable and untraceable requirements before an agent turns them into code.")
-  .version("0.1.0");
+  .version("0.1.1");
 
 program
   .argument("[path]", "directory holding the specs", ".")
@@ -39,11 +40,21 @@ program
 
     if (!adapter) {
       const known = adapters.map((a) => a.name).join(", ");
-      console.error(
-        requested === "auto"
-          ? pc.red(`No spec format detected in "${target}". Pass --format <${known}> to force one.`)
-          : pc.red(`Unknown format "${requested}". Known formats: ${known}.`),
-      );
+      if (requested === "auto") {
+        // The common first run is someone typing `npx specsy` in their home
+        // directory, so say what was looked for and what to do next.
+        console.error(pc.red(`No spec format detected in "${path.resolve(target)}".`));
+        console.error("");
+        console.error("specsy auto-detects an OpenSpec layout: an openspec/ or changes/ directory.");
+        console.error("");
+        console.error("  Run it inside a project that has one:");
+        console.error(pc.dim("      cd my-project && specsy"));
+        console.error("");
+        console.error("  Or lint any folder of markdown specs explicitly:");
+        console.error(pc.dim("      specsy ./docs --format generic"));
+      } else {
+        console.error(pc.red(`Unknown format "${requested}". Known formats: ${known}.`));
+      }
       process.exitCode = 2;
       return;
     }

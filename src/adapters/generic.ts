@@ -2,7 +2,7 @@ import path from "node:path";
 import fg from "fast-glob";
 import type { Adapter } from "./types.js";
 import type { SpecProject } from "../model.js";
-import { loadDocument } from "./extract.js";
+import { SCAN_IGNORE, SCAN_OPTS, loadDocument } from "./extract.js";
 
 /**
  * Last-resort adapter: treat a directory of markdown as one change.
@@ -14,9 +14,19 @@ import { loadDocument } from "./extract.js";
 export const genericAdapter: Adapter = {
   name: "generic",
   label: "plain markdown",
+  // Opt-in only. "Any directory containing markdown" describes a home
+  // directory as readily as a spec folder.
+  autoDetect: false,
 
   async detect(root) {
-    const hits = await fg("**/*.md", { cwd: root, deep: 3, ignore: ["node_modules/**"] });
+    // Only needs to know whether *any* spec-ish file exists, so it stops at
+    // the first hit rather than walking an entire home directory.
+    const hits = await fg("**/*.md", {
+      cwd: root,
+      deep: 3,
+      ignore: SCAN_IGNORE,
+      ...SCAN_OPTS,
+    });
     return hits.length > 0;
   },
 
@@ -24,7 +34,8 @@ export const genericAdapter: Adapter = {
     const files = await fg("**/*.md", {
       cwd: root,
       absolute: true,
-      ignore: ["node_modules/**", "**/archive/**"],
+      ignore: [...SCAN_IGNORE, "**/archive/**"],
+      ...SCAN_OPTS,
     });
     return {
       root,

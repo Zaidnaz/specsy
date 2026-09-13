@@ -1,5 +1,5 @@
 import type { Rule } from "../engine/types.js";
-import { countMatches, requirementLines, sentences, wordListPattern } from "./util.js";
+import { clarityUnits, countMatches, requirementLines, sentences, wordListPattern } from "./util.js";
 import { stripNoise } from "../markdown.js";
 
 /**
@@ -17,7 +17,6 @@ export const WEASEL_WORDS = [
   "simple", "easy", "clean", "nice", "modern", "lightweight", "flexible",
   "as needed", "if necessary", "where applicable", "where appropriate",
   "best practice", "best practices", "industry standard",
-  "etc", "and so on", "and more", "among others",
   "several", "various", "some", "many", "most", "few",
   "minimal", "optimal", "better", "improved", "enhanced", "comprehensive",
   "significant", "significantly", "substantial", "substantially",
@@ -27,6 +26,9 @@ export const WEASEL_WORDS = [
 const PERF_CLAIM = /\b(fast|quickly|slow|responsive|low[- ]latency|high[- ]performance|real[- ]?time|instant(?:ly)?|snappy|scalable|high[- ]throughput)\b/i;
 /** Something countable: a magnitude with a unit, or an explicit percentage. */
 const QUANTITY = /\b\d+(?:\.\d+)?\s*(?:[a-z-]+\s+){0,2}(?:ms|milliseconds?|s|secs?|seconds?|m|mins?|minutes?|h|hours?|rps|qps|tps|req\/s|requests?\/s|%|percent|users?|connections?)(?![a-z])/i;
+
+/** Open-ended list endings. Only a defect when the list really trails off. */
+const OPEN_ENDED = /\b(?:etc\.?|and so on|and more|among others)(?=\s*[.,;:)\]]|\s*$)/gi;
 
 const NORMATIVE = /\b(MUST NOT|MUST|SHALL NOT|SHALL|SHOULD NOT|SHOULD|MAY)\b/;
 /** Non-normative phrasing that is trying to be a requirement. */
@@ -41,13 +43,20 @@ export const noWeaselWords: Rule = {
   appliesTo: ["spec", "proposal"],
   check(doc, ctx) {
     const pattern = wordListPattern([...WEASEL_WORDS, ...(ctx.config.weaselWords ?? [])]);
-    for (const req of doc.requirements) {
-      for (const { text, span } of requirementLines(req)) {
+    for (const unit of clarityUnits(doc)) {
+      for (const { text, span } of unit.lines) {
         for (const m of text.matchAll(pattern)) {
           ctx.report({
             message: `"${m[0]}" is not measurable.`,
             span: { ...span, column: (m.index ?? 0) + 1 },
             hint: `Replace with the observable outcome. What would you check to know "${m[0]}" was achieved?`,
+          });
+        }
+        for (const m of text.matchAll(OPEN_ENDED)) {
+          ctx.report({
+            message: `"${m[0].trim()}" leaves the list open-ended.`,
+            span: { ...span, column: (m.index ?? 0) + 1 },
+            hint: "Enumerate the cases that must be handled. An agent cannot implement an unfinished list.",
           });
         }
       }
@@ -61,10 +70,10 @@ export const quantifyPerformance: Rule = {
   defaultSeverity: "error",
   appliesTo: ["spec", "proposal"],
   check(doc, ctx) {
-    for (const req of doc.requirements) {
-      // A budget stated anywhere in the requirement covers the whole thing.
-      if (QUANTITY.test(req.text)) continue;
-      for (const { text, span } of requirementLines(req)) {
+    for (const unit of clarityUnits(doc)) {
+      // A budget stated anywhere in the unit covers the whole thing.
+      if (QUANTITY.test(unit.text)) continue;
+      for (const { text, span } of unit.lines) {
         const m = PERF_CLAIM.exec(text);
         if (!m) continue;
         ctx.report({
@@ -72,7 +81,7 @@ export const quantifyPerformance: Rule = {
           span: { ...span, column: (m.index ?? 0) + 1 },
           hint: "State a budget and a percentile, e.g. \"p95 under 200ms\" or \"sustains 500 rps\".",
         });
-        break; // one finding per requirement is enough
+        break; // one finding per unit is enough
       }
     }
   },
@@ -126,7 +135,7 @@ export const noAmbiguousPronoun: Rule = {
   id: "no-ambiguous-pronoun",
   description: "Flags requirements opening with a pronoun that has no antecedent.",
   defaultSeverity: "warn",
-  appliesTo: ["spec", "proposal"],
+  appliesTo: ["spec"],
   check(doc, ctx) {
     for (const req of doc.requirements) {
       const first = stripNoise(req.text.split("\n")[0] ?? "").trim();

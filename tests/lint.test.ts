@@ -2,7 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { openspecAdapter } from "../src/adapters/openspec.js";
-import { detectAdapter, getAdapter } from "../src/adapters/index.js";
+import { adapters, detectAdapter, getAdapter } from "../src/adapters/index.js";
 import { lint } from "../src/engine/lint.js";
 import { allRules } from "../src/rules/index.js";
 
@@ -113,5 +113,59 @@ describe("the rule set", () => {
     for (const d of result.diagnostics) {
       expect(d.span.line, `${d.rule} in ${d.span.file}`).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("a proposal written as plain prose", () => {
+  // Regression: clarity rules used to run only over extracted requirements,
+  // and a proposal only yields those when it contains MUST/SHALL. Proposals
+  // written in ordinary English were therefore exempt from the rules that
+  // matter most, and reported clean.
+  it("is linted even with no normative keyword anywhere", async () => {
+    const result = await run("prose");
+    expect(fired(result)).toContain("no-weasel-words");
+    expect(fired(result)).toContain("quantify-performance");
+  });
+
+  it("flags the vague words in the What Changes section", async () => {
+    const messages = (await run("prose")).diagnostics.map((d) => d.message).join(" | ");
+    expect(messages).toContain("user-friendly");
+    expect(messages).toContain("gracefully");
+    expect(messages).toContain("fast");
+  });
+
+  // "Search feels slow" is a problem statement, not an unmeasurable
+  // requirement. Motivation sections are deliberately exempt.
+  it("leaves the Why section alone", async () => {
+    const onWhy = (await run("prose")).diagnostics.filter((d) => d.span.line >= 5 && d.span.line <= 6);
+    expect(onWhy.map((d) => `${d.rule}: ${d.message}`)).toEqual([]);
+  });
+
+  it("flags an open-ended list that really trails off", async () => {
+    const messages = (await run("prose")).diagnostics.map((d) => d.message).join(" | ");
+    expect(messages).toContain("etc");
+  });
+
+  // Regression: "and more" matched inside "fast and more user-friendly",
+  // where it is not a list ending at all.
+  it("does not flag \"and more\" mid-sentence", async () => {
+    const messages = (await run("prose")).diagnostics.map((d) => d.message);
+    expect(messages.filter((m) => m.includes("and more"))).toEqual([]);
+  });
+});
+
+describe("adapter auto-detection", () => {
+  // Regression: the generic adapter matched any directory containing markdown,
+  // so `npx specsy` in a home directory linted thousands of unrelated files.
+  it("never selects the generic adapter on its own", async () => {
+    for (const a of adapters) {
+      if (a.name === "generic") expect(a.autoDetect).toBe(false);
+    }
+    expect((await detectAdapter(fixture("prose")))?.name).toBe("openspec");
+  });
+
+  it("still allows the generic adapter when asked for explicitly", () => {
+    expect(getAdapter("generic")?.autoDetect).toBe(false);
+    expect(getAdapter("generic")).toBeDefined();
   });
 });
