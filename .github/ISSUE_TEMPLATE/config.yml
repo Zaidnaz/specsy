@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: I do not know how to use this
+    url: https://github.com/Zaidnaz/specsy#readme
+    about: Start with the walkthrough in the README, then `specsy --help`.

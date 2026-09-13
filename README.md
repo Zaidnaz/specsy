@@ -52,6 +52,72 @@ specsy sits between the spec and the code. Findings come back with a `file:line`
 
 With the [MCP server](#use-it-from-an-agent-mcp) the agent operates that gate itself: it writes a spec, lints it, reads the fix, rewrites, and only implements once the spec is clean. Nobody copies output between windows.
 
+## Walkthrough
+
+### You have an idea and nothing else
+
+```bash
+mkdir tally && cd tally && git init
+npx @fission-ai/openspec@latest init      # the spec format — not specsy's job
+claude mcp add specsy -- npx -y specsy mcp
+```
+
+Before writing anything, learn the bar. Ask your agent to call `list_rules`, or run:
+
+```bash
+npx specsy rules
+npx specsy explain quantify-performance
+```
+
+Then propose a change (`/opsx:propose add receipt upload`) and have the agent lint its own work. Left alone it writes what everyone writes — *"upload must be fast and handle errors gracefully"* — and specsy sends it back:
+
+```
+proposal.md:1:1     warn   [require-non-goals] Proposal has no non-goals section.
+specs/…/spec.md:12  warn   [quantify-performance] Performance claim "fast" has no target.
+specs/…/spec.md:19  error  [require-acceptance-criteria] Requirement "Amount extraction" has no acceptance criteria.
+```
+
+The agent can fix most of that alone. What it *can't* fix — "what accuracy target, and what happens on a blurry photo?" — it now has to ask you. **That question is the point.** Without it the agent picks silently and you find out in review.
+
+Once clean, check what the change will cost to keep re-reading, then build:
+
+```bash
+npx specsy footprint    # 9.4k tokens; ~75k over 8 agent turns, ~$0.38
+```
+
+Finally, make it permanent — a pre-commit hook and a CI job:
+
+```bash
+npx specsy || exit 1
+```
+
+```yaml
+- run: npx specsy --reporter github --max-warnings 0
+```
+
+### You already have specs
+
+Look before adopting. Nothing is installed, nothing is written:
+
+```bash
+cd my-project
+npx specsy
+```
+
+If it is noisy, walk away — that is the honest way to judge a linter. If it is useful, adopt it as a ratchet rather than a rewrite. Fix the errors, defer the warnings:
+
+```bash
+npx specsy --quiet          # errors only; warnings still counted for the exit code
+```
+
+Then hold *new* specs to the full bar while the backlog drains, by putting only errors in CI:
+
+```yaml
+- run: npx specsy --quiet
+```
+
+Turn rules back on in `.specsyrc.json` as you go. Finally, commit a `.mcp.json` so every agent on the team self-checks before implementing, and stop being the person pasting terminal output into chat.
+
 ## Install
 
 specsy lints the directory you run it **from**, so run it inside a project:
